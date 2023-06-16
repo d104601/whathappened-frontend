@@ -10,19 +10,15 @@ function saveArticle(article: any) {
     //save article into local storage
     let articles = localStorage.getItem("articles");
     if (articles === null) {
-        articles = "[]";
+        articles = "{}";
     }
     let articlesArray = JSON.parse(articles);
 
     // check if article is already saved
-    let isSaved = false;
-    for (let i = 0; i < articlesArray.length; i++) {
-        if (articlesArray[i].url === article.url) {
-            isSaved = true;
-        }
-    }
-    if (!isSaved) {
-        articlesArray.push(article);
+    // if article is not saved, save it
+    // save url as key and article as value
+    if (articlesArray[article.url] === undefined) {
+        articlesArray[article.url] = article;
         localStorage.setItem("articles", JSON.stringify(articlesArray));
     }
 }
