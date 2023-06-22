@@ -63,7 +63,7 @@ const NewsSearch = () => {
                                 <Link href={result.url}>{result.name}</Link><br/>
                                 {result.provider[0].name} {cuttingDate(result.datePublished)} {result.category}
                             </Typography>
-                            <Typography sx={{m: 2}}>{result.description}</Typography>
+                            <Typography sx={{m: 2}}>{result.description}....</Typography>
                             <Button sx={{m: 2}} variant ={"contained"} onClick={() => saveArticle(result)}>Save this article</Button>
                         </Card>
                     )
