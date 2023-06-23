@@ -10,15 +10,14 @@ function saveArticle(article: any) {
     //save article into local storage
     let articles = localStorage.getItem("articles");
     if (articles === null) {
-        articles = "{}";
+        articles = "[]";
     }
+    // convert the string into an array
     let articlesArray = JSON.parse(articles);
 
-    // check if article is already saved
-    // if article is not saved, save it
-    // save url as key and article as value
-    if (articlesArray[article.url] === undefined) {
-        articlesArray[article.url] = article;
+
+    if (!articlesArray.includes(article)) {
+        articlesArray.push(article);
         localStorage.setItem("articles", JSON.stringify(articlesArray));
     }
 }
@@ -39,7 +38,7 @@ const NewsSearch = () => {
     };
 
     return (
-        <Container>
+        <div>
             <form onSubmit={search}>
                 <TextField
                     placeholder={"Enter keyword here"}
@@ -69,7 +68,7 @@ const NewsSearch = () => {
                     )
                 })}
             </div>
-        </Container>
+        </div>
     );
 }
 

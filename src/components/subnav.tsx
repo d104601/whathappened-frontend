@@ -1,6 +1,7 @@
 import {ReactNode, SyntheticEvent, useState} from 'react';
 import {Box, Tab, Tabs, Typography} from "@mui/material";
 import newsSearch from "../services/newsSearch";
+import Saved from "../services/saved";
 
 interface TabPanelProps {
     children?: ReactNode;
@@ -57,7 +58,7 @@ const Subnav = () => {
                 {newsSearch()}
             </TabPanel>
             <TabPanel value={value} index={1}>
-                Saved Articles(Coming soon)
+                {Saved()}
             </TabPanel>
             <TabPanel value={value} index={2}>
                 Summarize with GPT(Coming soon)
