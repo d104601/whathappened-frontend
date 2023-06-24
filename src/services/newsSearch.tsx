@@ -1,6 +1,6 @@
-import {useState, useEffect, FormEvent} from 'react';
+import {useState, FormEvent} from 'react';
 import axios from 'axios';
-import {Container, TextField, Button, Card, Link, Typography} from "@mui/material";
+import {TextField, Button, Card, Link, Typography} from "@mui/material";
 
 function cuttingDate(date: string) {
     return date.substring(0, 10);
@@ -35,7 +35,7 @@ const NewsSearch = () => {
         })
 
         setSearchResults(response.data.value);
-    };
+    }
 
     return (
         <div>
@@ -43,11 +43,13 @@ const NewsSearch = () => {
                 <TextField
                     placeholder={"Enter keyword here"}
                     onChange={(e) => { setSearchTerm(e.target.value) }}
-                    variant={"standard"}
+                    variant={"outlined"}
+                    size={"small"}
                 />
                 <Button
                     type={"submit"}
-                    variant={"text"}
+                    variant={"contained"}
+                    color={"primary"}
                 >
                     Search
                 </Button>

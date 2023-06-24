@@ -1,5 +1,5 @@
 import {ReactNode, SyntheticEvent, useState} from 'react';
-import {Box, Tab, Tabs, Typography} from "@mui/material";
+import {Box, Tab, Tabs} from "@mui/material";
 import newsSearch from "../services/newsSearch";
 import Saved from "../services/saved";
 
@@ -22,7 +22,7 @@ function TabPanel(props: TabPanelProps) {
         >
             {value === index && (
                 <Box sx={{ p: 3 }}>
-                    <Typography>{children}</Typography>
+                    {children}
                 </Box>
             )}
         </div>
