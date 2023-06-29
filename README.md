@@ -1,46 +1,12 @@
-# Getting Started with Create React App
+# WhatHappened
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a React-based news search application that allows users to search for news articles using a search bar and save their favorite articles to the local storage. The application utilizes the Bing News API to fetch the latest news articles based on the user's search query.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
-
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+1. **Search Bar**: Users can enter their desired keywords or topics in the search bar to retrieve news articles related to their search query.
+2. **Article Saving**: Users can save any article they find interesting from the search results to their local storage for future reference.
+3. **Bing News API**: The application fetches news articles from the Bing News API, providing up-to-date and relevant results to the users.
+4. **Next Steps**: The following are the next steps to enhance the application's functionality:
+    - **Deployment**: Deploy the application using a cloud service such as AWS to make it accessible to users worldwide.
+    - **Backend Server**: Create a backend server to support user login feature and enable saving articles to user accounts for personalized experiences.

@@ -15,7 +15,6 @@ function saveArticle(article: any) {
     // convert the string into an array
     let articlesArray = JSON.parse(articles);
 
-
     if (!articlesArray.includes(article)) {
         articlesArray.push(article);
         localStorage.setItem("articles", JSON.stringify(articlesArray));
