@@ -1,4 +1,5 @@
 import {useState, useEffect} from "react";
+import 'bulma/css/bulma.css'
 
 function getSavedArticle() {
     let articles = localStorage.getItem("articles");
