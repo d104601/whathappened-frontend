@@ -1,6 +1,4 @@
 import {useState, useEffect} from "react";
-import {Button, Card, Link, Typography} from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
 
 function getSavedArticle() {
     let articles = localStorage.getItem("articles");
@@ -33,17 +31,23 @@ const Saved = () => {
 
     return (
         <div>
-            {SavedArticles.length === 0 && <Typography sx={{m: 2}}>No saved articles</Typography>}
+            {SavedArticles.length === 0 && <p className="is-centered">No saved articles</p>}
             {SavedArticles.map((result: any, index: number) => {
                 return (
-                    <Card sx={{m: 2}} variant={"outlined"} key={index}>
-                        <Typography sx={{m: 2}}>
-                            <Link href={result.url}>{result.name}</Link><br/>
-                            {result.provider[0].name} {cuttingDate(result.datePublished)} {result.category}
-                        </Typography>
-                        <Typography sx={{m: 2}}>{result.description}....</Typography>
-                        <Button sx={{m: 2}} variant ={"outlined"} color={"error"} startIcon={<DeleteIcon />} onClick={() => removeArticle(result)}>Remove</Button>
-                    </Card>
+                    <div className='card' key={index}>
+                        <div className='card-content'>
+                            <div className='media'>
+                                <div className='media-content'>
+                                    <p className='title is-4'><a href={result.url}>{result.name}</a></p>
+                                    <p className='subtitle is-6'>{result.provider[0].name} {cuttingDate(result.datePublished)} {result.category}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className='content'>
+                            <p>{result.description}....</p>
+                        </div>
+                        <button className='button is-danger is-light' onClick={() => removeArticle(result)}>Remove</button>
+                    </div>
                 )
             })}
         </div>

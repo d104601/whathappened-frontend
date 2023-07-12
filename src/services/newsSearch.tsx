@@ -1,6 +1,5 @@
 import {useState, FormEvent} from 'react';
 import axios from 'axios';
-import {TextField, Button, Card, Link, Typography} from "@mui/material";
 
 function cuttingDate(date: string) {
     return date.substring(0, 10);
@@ -39,33 +38,44 @@ const NewsSearch = () => {
     return (
         <div>
             <form onSubmit={search}>
-                <TextField
-                    placeholder={"Enter keyword here"}
-                    onChange={(e) => { setSearchTerm(e.target.value) }}
-                    variant={"outlined"}
-                    size={"small"}
-                />
-                <Button
-                    type={"submit"}
-                    variant={"contained"}
-                    color={"primary"}
-                >
-                    Search
-                </Button>
+                <div className="field has-addons">
+                    <div className="control">
+                        <input
+                        placeholder={"Search news here"}
+                        onChange={(e) => { setSearchTerm(e.target.value) }}
+                        className={"input"}
+                        type='text'    
+                        />
+                    </div>
+                    <div className='control'>
+                        <button
+                            type={"submit"}
+                            className={"button is-info"}
+                        >
+                            Search
+                        </button>
+                    </div>
+                </div>
             </form>
 
 
             <div>
                 {SearchResults.map((result: any, index: number) => {
                     return (
-                        <Card sx={{m: 2}} variant={"outlined"} key={index}>
-                            <Typography sx={{m: 2}}>
-                                <Link href={result.url}>{result.name}</Link><br/>
-                                {result.provider[0].name} {cuttingDate(result.datePublished)} {result.category}
-                            </Typography>
-                            <Typography sx={{m: 2}}>{result.description}....</Typography>
-                            <Button sx={{m: 2}} variant ={"contained"} onClick={() => saveArticle(result)}>Save this article</Button>
-                        </Card>
+                        <div className='card' key={index}>
+                            <div className='card-content'>
+                                <div className='media'>
+                                    <div className='media-content'>
+                                        <p className='title is-4'><a href={result.url}>{result.name}</a></p>
+                                        <p className='subtitle is-6'>{result.provider[0].name} {cuttingDate(result.datePublished)} {result.category}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className='content'>
+                                <p>{result.description}....</p>
+                            </div>
+                            <button className='button is-dark' onClick={() => saveArticle(result)}>Save this article</button>
+                        </div>
                     )
                 })}
             </div>
