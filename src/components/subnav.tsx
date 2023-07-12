@@ -13,24 +13,6 @@ const Subnav = () => {
     }
 
     return (
-        // <Box sx={{ width: '100%' }}>
-        //     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        //         <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-        //             <Tab label="News Search" {...a11yProps(0)} href='/search' />
-        //             <Tab label="Saved Articles" {...a11yProps(1)} href='/saved' />
-        //             <Tab label="Summarize with GPT" {...a11yProps(1)} href='/summarize'/>
-        //         </Tabs>
-        //     </Box>
-        //     <Route path='/search'
-        //         {newsSearch()}
-        //     </Route>
-        //     <TabPanel value={value} index={1}>
-        //         {Saved()}
-        //     </TabPanel>
-        //     <TabPanel value={value} index={2}>
-        //         Summarize with GPT(Coming soon)
-        //     </TabPanel>
-        // </Box>
         <div>
             <div className="tabs is-centered">
                 <ul>
