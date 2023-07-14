@@ -10,3 +10,10 @@ This is a React-based news search application that allows users to search for ne
 4. **Next Steps**: The following are the next steps to enhance the application's functionality:
     - **Deployment**: Deploy the application using a cloud service such as AWS to make it accessible to users worldwide.
     - **Backend Server**: Create a backend server to support user login feature and enable saving articles to user accounts for personalized experiences.
+
+## Technologies Used
+1. React
+2. TypeScript
+3. Bing News API
+4. Bulma CSS Framework
+5. Axios
