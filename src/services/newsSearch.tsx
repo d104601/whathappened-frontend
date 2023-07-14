@@ -22,6 +22,7 @@ function saveArticle(article: any) {
 
 const NewsSearch = () => {
     const [SearchTerm, setSearchTerm] = useState("");
+    const [SearchOption, setSearchOption] = useState(0);
     const [SearchResults, setSearchResults] = useState([]);
     const [SubscriptionKey] = useState(process.env.REACT_APP_BING_SUBSCRIPTION_KEY);
 
@@ -37,10 +38,14 @@ const NewsSearch = () => {
 
     return (
         <div>
-            <section className='section'>
+            <section className='section has-text-centered'>
                 <form onSubmit={search}>
-                    <h1 className='title has-text-centered'>News Search</h1>
-                    {SearchResults.length === 0 && <p className='subtitle has-text-centered'>Powered by Bing News Search API</p>}
+                    {SearchResults.length === 0 && 
+                    <>
+                        <h1 className='title'>News Search</h1>
+                        <p className='subtitle'>Powered by Bing News Search API</p>
+                    </>
+                    }
                     <div className="field has-addons has-addons-centered">
                         <div className="control">
                             <input
@@ -62,6 +67,16 @@ const NewsSearch = () => {
                             </button>
                         </div>
                     </div>
+                    {
+                        SearchOption === 0 &&
+                        <button onClick={()=> setSearchOption(1)}>See more search option</button>
+                    }
+                    {
+                        SearchOption === 1 && <div>
+                            <button onClick={()=> setSearchOption(0)}>Hide search option</button>
+                            Working on progress
+                        </div>
+                    }
                 </form>
             </section>
 

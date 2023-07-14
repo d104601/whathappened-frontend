@@ -13,6 +13,20 @@ function cuttingDate(date: string) {
     return date.substring(0, 10);
 }
 
+function modalTrigger(index: number) {
+    let modal = document.getElementById('remove-article-'+index);
+    if (modal !== null) {
+        modal.classList.add('is-active');
+    }
+}
+
+function closeModal(index: number) {
+    let modal = document.getElementById('remove-article-'+index);
+    if (modal !== null) {
+        modal.classList.remove('is-active');
+    }
+}
+
 
 const Saved = () => {
     // set saved articles to be an empty array of any type
@@ -20,6 +34,7 @@ const Saved = () => {
 
     // When component is loaded or saved articles changes, update the saved articles
     useEffect(() => {
+
         setSavedArticles(getSavedArticle());
     }, []);
 
@@ -49,10 +64,25 @@ const Saved = () => {
                                 <div className='content'>
                                     <p>{result.description}....</p>
                                 </div>
-                                <button className='button is-danger is-light' onClick={() => removeArticle(result)}>Remove
-                                </button>
+                                <button className='button is-danger is-light js-modal-trigger' data-target={'remove-article-'+index} onClick={() => modalTrigger(index)}>Remove</button>
                             </div>
 
+                            <div className='modal' id={'remove-article-'+index}>
+                                <div className='modal-background' onClick={() => closeModal(index)}></div>
+                                <div className='modal-content'>
+                                    <div className='box has-text-centered'>
+                                        <p className="m-3">Are you sure to remove this article?</p>
+                                        <button className='button is-danger m-2 is-normal' onClick={() => {
+                                            removeArticle(result);
+                                            closeModal(index);
+                                            }}
+                                        >
+                                            Yes</button>
+                                        <button className='button m-2' onClick={() => closeModal(index)}> No </button>
+                                    </div>
+                                </div>
+                                <button className='modal-close m-2' aria-label='close' onClick={() => closeModal(index)}></button>
+                            </div>
                         </div>
                     )
                 })}
