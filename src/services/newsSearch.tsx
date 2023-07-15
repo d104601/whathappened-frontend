@@ -1,39 +1,46 @@
 import {useState, FormEvent} from 'react';
 import axios from 'axios';
 
-function cuttingDate(date: string) {
-    return date.substring(0, 10);
-}
-
-function saveArticle(article: any) {
-    //save article into local storage
-    let articles = localStorage.getItem("articles");
-    if (articles === null) {
-        articles = "[]";
-    }
-    // convert the string into an array
-    let articlesArray = JSON.parse(articles);
-
-    if (!articlesArray.includes(article)) {
-        articlesArray.push(article);
-        localStorage.setItem("articles", JSON.stringify(articlesArray));
-    }
-}
+import NewsCard from '../components/newsCard';
 
 const NewsSearch = () => {
     const [SearchTerm, setSearchTerm] = useState("");
     const [SearchOption, setSearchOption] = useState(0);
+    const [SearchLocation, setSearchLocation] = useState("");
+
     const [SearchResults, setSearchResults] = useState([]);
     const [SubscriptionKey] = useState(process.env.REACT_APP_BING_SUBSCRIPTION_KEY);
 
     async function search(e: FormEvent) {
         e.preventDefault();
-        const url = "api.bing.microsoft.com/v7.0/news/search";
-        const response = await axios.get(`https://${url}?q=${encodeURIComponent(SearchTerm)}&count=20`, {
+        const count = "&count=20"
+        // get mkt value from select option
+        let url = "https://api.bing.microsoft.com/v7.0/news/search?q=" + encodeURIComponent(SearchTerm) + count;
+        if(SearchOption === 1) {
+            const mkt = "&mkt=" + SearchLocation;
+            url += mkt;
+        }
+        console.log(url);
+        const response = await axios.get(url, {
             headers: {'Ocp-Apim-Subscription-Key': SubscriptionKey}
         })
 
         setSearchResults(response.data.value);
+    }
+
+    const saveArticle = (article: any) => {
+        //save article into local storage
+        let articles = localStorage.getItem("articles");
+        if (articles === null) {
+            articles = "[]";
+        }
+        // convert the string into an array
+        let articlesArray = JSON.parse(articles);
+    
+        if (!articlesArray.includes(article)) {
+            articlesArray.push(article);
+            localStorage.setItem("articles", JSON.stringify(articlesArray));
+        }
     }
 
     return (
@@ -69,40 +76,42 @@ const NewsSearch = () => {
                     </div>
                     {
                         SearchOption === 0 &&
-                        <button onClick={()=> setSearchOption(1)}>See more search option</button>
+                            <button onClick={()=> setSearchOption(1)}>See more search option</button>
                     }
                     {
-                        SearchOption === 1 && <div>
+                        SearchOption === 1 && 
+                        <>
                             <button onClick={()=> setSearchOption(0)}>Hide search option</button>
-                            Working on progress
-                        </div>
+                            <div className="field">
+                                Location: 
+                                <div className="control">
+                                    <div className='select'>
+                                        <select onChange={(e) => {
+                                            setSearchLocation(e.target.value)
+                                        }}>
+                                            <option value="en-US">United States</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </>
                     }
                 </form>
             </section>
 
             <section className='container'>
-                <div>
-                    {SearchResults.map((result: any, index: number) => {
-                        return (
-                            <div className='card m-3' key={index}>
-                                <div className='card-content'>
-                                    <div className='media'>
-                                        <div className='media-content'>
-                                            <p className='title is-4'><a href={result.url} target={"_blank"} rel="noreferrer">{result.name}</a></p>
-                                            <p className='subtitle is-6'>{result.provider[0].name} {cuttingDate(result.datePublished)} {result.category}</p>
-                                        </div>
-                                    </div>
-                                    <div className='content'>
-                                        <p>{result.description}....</p>
-                                    </div>
-                                    <button className='button is-dark' onClick={() => saveArticle(result)}>Save this
-                                        article
-                                    </button>
-                                </div>
-                            </div>
-                        )
-                    })}
-                </div>
+                {SearchResults.map((result: any, index: number) => {
+                    return (
+                        <div key={index}>
+                            <NewsCard
+                                article={result}
+                                srcPage="search"
+                                index={index}
+                                buttonAction={saveArticle}
+                            />
+                        </div>
+                    )
+                })}
             </section>
         </div>
     );

@@ -1,5 +1,6 @@
 import {useState, useEffect} from "react";
 import 'bulma/css/bulma.css'
+import NewsCard from "../components/newsCard";
 
 function getSavedArticle() {
     let articles = localStorage.getItem("articles");
@@ -8,25 +9,6 @@ function getSavedArticle() {
     }
     return JSON.parse(articles);
 }
-
-function cuttingDate(date: string) {
-    return date.substring(0, 10);
-}
-
-function modalTrigger(index: number) {
-    let modal = document.getElementById('remove-article-'+index);
-    if (modal !== null) {
-        modal.classList.add('is-active');
-    }
-}
-
-function closeModal(index: number) {
-    let modal = document.getElementById('remove-article-'+index);
-    if (modal !== null) {
-        modal.classList.remove('is-active');
-    }
-}
-
 
 const Saved = () => {
     // set saved articles to be an empty array of any type
@@ -38,7 +20,7 @@ const Saved = () => {
         setSavedArticles(getSavedArticle());
     }, []);
 
-    function removeArticle(article: any) {
+    const removeArticle = (article: any) => {
         let newArticles = SavedArticles.filter((a) => a !== article);
 
         localStorage.setItem("articles", JSON.stringify(newArticles));
@@ -53,36 +35,13 @@ const Saved = () => {
                 {SavedArticles.length === 0 && <p className='subtitle has-text-centered'>No saved articles now.</p>}
                 {SavedArticles.map((result: any, index: number) => {
                     return (
-                        <div className='card m-3' key={index}>
-                            <div className='card-content'>
-                                <div className='media'>
-                                    <div className='media-content'>
-                                        <p className='title is-4'><a href={result.url} target={"_blank"} rel="noreferrer">{result.name}</a></p>
-                                        <p className='subtitle is-6'>{result.provider[0].name} {cuttingDate(result.datePublished)} {result.category}</p>
-                                    </div>
-                                </div>
-                                <div className='content'>
-                                    <p>{result.description}....</p>
-                                </div>
-                                <button className='button is-danger is-light js-modal-trigger' data-target={'remove-article-'+index} onClick={() => modalTrigger(index)}>Remove</button>
-                            </div>
-
-                            <div className='modal' id={'remove-article-'+index}>
-                                <div className='modal-background' onClick={() => closeModal(index)}></div>
-                                <div className='modal-content'>
-                                    <div className='box has-text-centered'>
-                                        <p className="m-3">Are you sure to remove this article?</p>
-                                        <button className='button is-danger m-2 is-normal' onClick={() => {
-                                            removeArticle(result);
-                                            closeModal(index);
-                                            }}
-                                        >
-                                            Yes</button>
-                                        <button className='button m-2' onClick={() => closeModal(index)}> No </button>
-                                    </div>
-                                </div>
-                                <button className='modal-close m-2' aria-label='close' onClick={() => closeModal(index)}></button>
-                            </div>
+                        <div key={index}>
+                            <NewsCard
+                                article={result}
+                                srcPage={"saved"}
+                                index={index}
+                                buttonAction={removeArticle}
+                            />
                         </div>
                     )
                 })}
