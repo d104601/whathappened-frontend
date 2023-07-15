@@ -1,4 +1,4 @@
-interface cardData {
+interface propData {
     article: {
         name: string;
         url: string;
@@ -33,7 +33,7 @@ function closeModal(index: number) {
 }
 
 
-const NewsCard = (props: cardData) => {
+const NewsCard = (props: propData) => {
     const { article, srcPage, index, buttonAction } = props;
 
     const actionWithArticle = () => {
