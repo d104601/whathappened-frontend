@@ -1,7 +1,7 @@
 import {useState, FormEvent} from 'react';
 import axios from 'axios';
 
-import NewsCard from '../components/newsCard';
+import NewsCard from './newsCard';
 
 const NewsSearch = () => {
     const [SearchTerm, setSearchTerm] = useState("");
@@ -16,20 +16,34 @@ const NewsSearch = () => {
     async function search(e: FormEvent) {
         e.preventDefault();
         setSearchResults([]);
-        let url = "https://api.bing.microsoft.com/v7.0/news/search?q="+encodeURIComponent(SearchTerm);
 
+        let url = "https://api.bing.microsoft.com/v7.0/news/"
+
+        if(SearchTerm !== "") {
+            url += "search?q=" + encodeURIComponent(SearchTerm);
+        }
     
         if(SearchOption === 1) {
-            url += SearchLocation + SearchCategory + SearchPeriod + "sortBy=Relevance";
+            if(SearchTerm !== "") {
+                url += "&";
+            }
+            else {
+                url += "?";
+            }
+            url += SearchLocation + SearchCategory + SearchPeriod + "&sortBy=Relevance";
         }
         
+        console.log(url);
         const response = await axios.get(url, {
             headers: {
                 'Ocp-Apim-Subscription-Key': SubscriptionKey,
-                'Accept-Language': 'en-US, fr-FR, ko-KR, cn-CN, ja-JP, it-IT, de-DE, hi-IN, es-ES',
-                'Accept': 'application/json',
             },
-        })
+        }).then((response) => {
+            console.log(response);
+            return response;
+        });
+
+        console.log(response.data.value);
 
         setSearchResults(response.data.value);
     }
@@ -66,7 +80,6 @@ const NewsSearch = () => {
                                 onChange={(e) => {
                                     setSearchTerm(e.target.value)
                                 }}
-                                // longer search bar
                                 className={"input is-info"}
                                 type='text'
                             />
@@ -97,16 +110,13 @@ const NewsSearch = () => {
                                                 setSearchLocation(e.target.value)
                                             }}>
                                                 <option value="">All</option>
-                                                <option value="&cc=us">United States</option>
-                                                <option value="&cc=au">Australia</option>
-                                                <option value="&cc=ca">Canada</option>
-                                                <option value="&cc=cn">China</option>
-                                                <option value="&cc=fr">France</option>
-                                                <option value="&cc=de">Germany</option>
-                                                <option value="&cc=in">India</option>
-                                                <option value="&cc=it">Italy</option>
-                                                <option value="&cc=jp">Japan</option>
-                                                <option value="&cc=kr">South Korea</option>
+                                                <option value="mkt=en-US">United States</option>
+                                                <option value="mkt=en-CA">Canada</option>
+                                                <option value="mkt=en-GB">United Kingdom</option>
+                                                <option value="mkt=en-AU">Australia</option>
+                                                <option value="mkt=zh-CN">China</option>
+                                                <option value="mkt=en-IN">India</option>
+                                                <option value="mkt=ja-JP">Japan</option>
                                             </select>
                                         </div>
                                     </div>
@@ -119,12 +129,12 @@ const NewsSearch = () => {
                                                 setSearchCategory(e.target.value)
                                             }}>
                                                 <option value="">All</option>
-                                                <option value="&category=Business">Business</option>
-                                                <option value="&category=Entertainment">Entertainment</option>
-                                                <option value="&category=Health">Health</option>
-                                                <option value="&category=Politics">Politics</option>
-                                                <option value="&category=ScienceAndTechnology">Science and Technology</option>
-                                                <option value="&category=Sports">Sports</option>
+                                                <option value="&category=business">Business</option>
+                                                <option value="&category=entertainment">Entertainment</option>
+                                                <option value="&category=health">Health</option>
+                                                <option value="&category=politics">Politics</option>
+                                                <option value="&category=scienceAndTechnology">Science and Technology</option>
+                                                <option value="&category=sports">Sports</option>
                                             </select>
                                         </div>
                                     </div>
