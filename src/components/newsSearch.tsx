@@ -1,4 +1,4 @@
-import {useState, FormEvent} from 'react';
+import {useState, FormEvent, useEffect} from 'react';
 import axios from 'axios';
 
 import NewsCard from './newsCard';
@@ -7,43 +7,52 @@ const NewsSearch = () => {
     const [SearchTerm, setSearchTerm] = useState("");
     const [SearchOption, setSearchOption] = useState(0);
     const [SearchLocation, setSearchLocation] = useState("");
-    const [SearchCategory, setSearchCategory] = useState("");
     const [SearchPeriod, setSearchPeriod] = useState("");
 
+    const [SearchURL, setSearchURL] = useState("");
+
     const [SearchResults, setSearchResults] = useState([]);
+    const [CurrentOffset, setCurrentOffset] = useState(0);
     const [SubscriptionKey] = useState(process.env.REACT_APP_BING_SUBSCRIPTION_KEY);
 
-    async function search(e: FormEvent) {
+    useEffect(() => {
+        const changePage = async() => {
+            const response = await axios.get(SearchURL+"&offset="+CurrentOffset, {
+                headers: {
+                    'Ocp-Apim-Subscription-Key': SubscriptionKey,
+                },
+            }).then((response) => {
+                return response;
+            });
+
+            setSearchResults(response.data.value);
+        }
+
+        if(SearchURL !== "") {
+            changePage();
+        }
+    }, [CurrentOffset, SearchURL, SubscriptionKey]);
+
+    const search = async (e: FormEvent) => {
         e.preventDefault();
         setSearchResults([]);
+        setCurrentOffset(0);
 
-        let url = "https://api.bing.microsoft.com/v7.0/news/"
+        let url = "https://api.bing.microsoft.com/v7.0/news/search?q=" + encodeURIComponent(SearchTerm) + "&sortBy=Relevance&count=10";
 
-        if(SearchTerm !== "") {
-            url += "search?q=" + encodeURIComponent(SearchTerm);
-        }
-    
         if(SearchOption === 1) {
-            if(SearchTerm !== "") {
-                url += "&";
-            }
-            else {
-                url += "?";
-            }
-            url += SearchLocation + SearchCategory + SearchPeriod + "&sortBy=Relevance";
+            url += SearchURL + "?" + SearchLocation + SearchPeriod + "&sortBy=Relevance";
         }
-        
-        console.log(url);
-        const response = await axios.get(url, {
+
+        setSearchURL(url);
+
+        const response = await axios.get(url+"&offset="+CurrentOffset, {
             headers: {
                 'Ocp-Apim-Subscription-Key': SubscriptionKey,
             },
         }).then((response) => {
-            console.log(response);
             return response;
         });
-
-        console.log(response.data.value);
 
         setSearchResults(response.data.value);
     }
@@ -121,24 +130,7 @@ const NewsSearch = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="column">
-                                    <div className="control">
-                                        Category: 
-                                        <div className='select is-small'>
-                                            <select onChange={(e) => {
-                                                setSearchCategory(e.target.value)
-                                            }}>
-                                                <option value="">All</option>
-                                                <option value="&category=business">Business</option>
-                                                <option value="&category=entertainment">Entertainment</option>
-                                                <option value="&category=health">Health</option>
-                                                <option value="&category=politics">Politics</option>
-                                                <option value="&category=scienceAndTechnology">Science and Technology</option>
-                                                <option value="&category=sports">Sports</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
+
                                 <div className="column">
                                     <div className="control">
                                         Posted within:
@@ -161,6 +153,20 @@ const NewsSearch = () => {
             </section>
 
             <section className='container'>
+                {SearchResults.length !== 0
+                    &&
+                    // pagination
+                    <nav className="pagination is-centered" role="navigation" aria-label="pagination">
+                        {CurrentOffset !== 0 &&
+                            <button className="pagination-previous" onClick={() => {
+                                setCurrentOffset(CurrentOffset - 10);
+                            }}>Previous page</button>
+                        }
+                        <button className="pagination-next" onClick={() => {
+                            setCurrentOffset(CurrentOffset + 10)
+                        }}>Next page</button>
+                    </nav>
+                }
                 {SearchResults.map((result: any, index: number) => {
                     return (
                         <div key={index}>
