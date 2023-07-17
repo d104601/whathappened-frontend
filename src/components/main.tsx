@@ -4,6 +4,9 @@ import axios from "axios";
 
 const Main = () => {
     const [Trending, setTrending] = useState([]);
+    const [Weather, setWeather] = useState([]);
+    const [News, setNews] = useState([]);
+    const [Category, setCategory] = useState([]);
 
     const loadTrending = async () => {
         // get country using geolocation
@@ -44,8 +47,13 @@ const Main = () => {
         setTrending(response.data.value);
     };
 
+    const loadWeather = () => {
+
+    }
+
     useEffect(() => {
         loadTrending();
+        loadWeather();
     }, []);
 
 
@@ -57,15 +65,18 @@ const Main = () => {
                         What Happened?
                     </p>
                     <p className="subtitle">
-                        Here's what happened in your location today.
+                        Here's what happened today.
                     </p>
                 </div>
             </section>
             <div className="columns">
-                <div className="column is-one-fifth">
-                    <h1 className="title">Weather</h1>
-                </div>
                 <div className="column">
+                    <h1 className="title">Weather</h1>
+                    <div className="card m-3">
+                        <div className="card-content">
+                        </div>
+                    </div>
+
                     <h1 className="title">Trending</h1>
                     {
                         Trending.map((trend: any, index: number) => {

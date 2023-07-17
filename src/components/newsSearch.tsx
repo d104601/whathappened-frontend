@@ -2,6 +2,7 @@ import {useState, FormEvent, useEffect} from 'react';
 import axios from 'axios';
 
 import NewsCard from './newsCard';
+import PaginationBar from './paginationBar';
 
 const NewsSearch = () => {
     const [SearchTerm, setSearchTerm] = useState("");
@@ -41,7 +42,7 @@ const NewsSearch = () => {
         let url = "https://api.bing.microsoft.com/v7.0/news/search?q=" + encodeURIComponent(SearchTerm) + "&sortBy=Relevance&count=10";
 
         if(SearchOption === 1) {
-            url += SearchURL + "?" + SearchLocation + SearchPeriod + "&sortBy=Relevance";
+            url += "&" + SearchLocation + SearchPeriod;
         }
 
         setSearchURL(url);
@@ -156,16 +157,10 @@ const NewsSearch = () => {
                 {SearchResults.length !== 0
                     &&
                     // pagination
-                    <nav className="pagination is-centered" role="navigation" aria-label="pagination">
-                        {CurrentOffset !== 0 &&
-                            <button className="pagination-previous" onClick={() => {
-                                setCurrentOffset(CurrentOffset - 10);
-                            }}>Previous page</button>
-                        }
-                        <button className="pagination-next" onClick={() => {
-                            setCurrentOffset(CurrentOffset + 10)
-                        }}>Next page</button>
-                    </nav>
+                    <PaginationBar 
+                        CurrentOffset={CurrentOffset}
+                        setCurrentOffset={setCurrentOffset}
+                    />
                 }
                 {SearchResults.map((result: any, index: number) => {
                     return (
