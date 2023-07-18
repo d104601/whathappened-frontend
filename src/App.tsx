@@ -6,6 +6,7 @@ import Navbar from "./components/navbar";
 import Login from "./components/login";
 import Signup from "./components/signup";
 import Main from "./components/main";
+import Footer from './components/footer';
 
 function App() {
     return (
@@ -24,6 +25,7 @@ function App() {
                     </Routes>
                 </BrowserRouter>
             </div>
+            <Footer/>
         </div>
     );
 }

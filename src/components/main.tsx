@@ -1,12 +1,20 @@
 import {useState, useEffect} from "react";
 import axios from "axios";
+import NewsCard from "./newsCard";
+
+import saveArticle from "../services/saveArticle";
+
 
 
 const Main = () => {
     const [Trending, setTrending] = useState([]);
-    const [Weather, setWeather] = useState([]);
+
+    const [Weather, setWeather] = useState({} as any);
+    const [lat, setLat] = useState(0);
+    const [long, setLong] = useState(0);
+    const [appid] = useState(process.env.REACT_APP_WEATHERAPI_KEY);
+    
     const [News, setNews] = useState([]);
-    const [Category, setCategory] = useState([]);
 
     const loadTrending = async () => {
         // get country using geolocation
@@ -43,17 +51,49 @@ const Main = () => {
             });
         });
 
-        console.log(response.data.value);
         setTrending(response.data.value);
     };
 
-    const loadWeather = () => {
+    const loadWeather = async () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((position) => {
+                setLat(position.coords.latitude);
+                setLong(position.coords.longitude);
+            });
+        }
 
+        const response = await axios.get("https://api.openweathermap.org/data/2.5/onecall?lat=" + lat + "&lon=" + long + "&appid=" + appid).then((response) => {
+            return response;
+        });
+
+        console.log(response.data);
+
+        setWeather(response.data);
+    }
+
+    const loadCategoryNews = async (category: string) => {
+        let url = "https://api.bing.microsoft.com/v7.0/news";
+
+        if (category !== "") {
+            url += "?category=" + category;
+        }
+
+        const response = await axios.get(url, {
+            headers: {
+                'Ocp-Apim-Subscription-Key': process.env.REACT_APP_BING_SUBSCRIPTION_KEY,
+            },
+        }).then((response) => {
+            console.log(response);
+            return response;
+        });
+
+        setNews(response.data.value);
     }
 
     useEffect(() => {
         loadTrending();
         loadWeather();
+        loadCategoryNews("");
     }, []);
 
 
@@ -73,6 +113,13 @@ const Main = () => {
                 <div className="column">
                     <h1 className="title">Weather</h1>
                     <div className="card m-3">
+                        <div className="media">
+                            <div className="media-left">
+                                <figure className="image is-128x128">
+                                    <img src={"http://openweathermap.org/img/w/" + Weather.current.weather[0].icon + ".png"} alt="not available"/>
+                                </figure>
+                            </div>
+                        </div>
                         <div className="card-content">
                         </div>
                     </div>
@@ -106,6 +153,36 @@ const Main = () => {
                 </div>
                 <div className="column">
                     <h1 className="title">News by Category</h1>
+                    <div className='control'>
+                        Category:
+                        <div className='select is-small'>
+                            <select onChange={(e) => {
+                                loadCategoryNews(e.target.value);
+                                }}>
+                                <option value=''>Select Category</option>
+                                <option value='business'>Business</option>
+                                <option value='entertainment'>Entertainment</option>
+                                <option value='health'>Health</option>
+                                <option value='politics'>Politics</option>
+                                <option value='scienceandtechnology'>Science and Technology</option>
+                                <option value='sports'>Sports</option>
+                            </select>
+                        </div>
+                    </div>
+                    {
+                        News.map((article: any, index: number) => {
+                            return (
+                                <div key={index}>
+                                <NewsCard 
+                                    article={article}
+                                    index={index}
+                                    srcPage="search"
+                                    buttonAction={saveArticle}
+                                />
+                                </div>
+                            )
+                        })
+                    }
                 </div>
             </div>
         </div>

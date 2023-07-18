@@ -4,16 +4,20 @@ import axios from 'axios';
 import NewsCard from './newsCard';
 import PaginationBar from './paginationBar';
 
+import saveArticle from '../services/saveArticle';
+
 const NewsSearch = () => {
     const [SearchTerm, setSearchTerm] = useState("");
     const [SearchOption, setSearchOption] = useState(0);
     const [SearchLocation, setSearchLocation] = useState("");
+    const [SearchLanguage, setSearchLanguage] = useState("setlang=en-US");
     const [SearchPeriod, setSearchPeriod] = useState("");
 
     const [SearchURL, setSearchURL] = useState("");
 
     const [SearchResults, setSearchResults] = useState([]);
     const [CurrentOffset, setCurrentOffset] = useState(0);
+    const [TotalMatches, setTotalMatches] = useState(0);
     const [SubscriptionKey] = useState(process.env.REACT_APP_BING_SUBSCRIPTION_KEY);
 
     useEffect(() => {
@@ -25,7 +29,7 @@ const NewsSearch = () => {
             }).then((response) => {
                 return response;
             });
-
+            setTotalMatches(response.data.totalEstimatedMatches);
             setSearchResults(response.data.value);
         }
 
@@ -39,7 +43,18 @@ const NewsSearch = () => {
         setSearchResults([]);
         setCurrentOffset(0);
 
-        let url = "https://api.bing.microsoft.com/v7.0/news/search?q=" + encodeURIComponent(SearchTerm) + "&sortBy=Relevance&count=10";
+        
+        // if user didnt select any language but select location, set language to language of location
+        // So if location is not China or Japan, set language to English
+        if(SearchLanguage === "" && SearchLocation !== "") {
+            if(SearchLocation !== "zh-CN" && SearchLocation !== "ja-JP") {
+                setSearchLanguage("&setLang=en");
+            } else {
+                setSearchLanguage("&setLang="+SearchLocation);
+            }
+        }
+
+        let url = "https://api.bing.microsoft.com/v7.0/news/search?q=" + encodeURIComponent(SearchTerm) + "&sortBy=Relevance&" + SearchLanguage;
 
         if(SearchOption === 1) {
             url += "&" + SearchLocation + SearchPeriod;
@@ -47,30 +62,18 @@ const NewsSearch = () => {
 
         setSearchURL(url);
 
+        console.log(url)
+
         const response = await axios.get(url+"&offset="+CurrentOffset, {
             headers: {
                 'Ocp-Apim-Subscription-Key': SubscriptionKey,
             },
         }).then((response) => {
+            console.log(response);
             return response;
         });
 
         setSearchResults(response.data.value);
-    }
-
-    const saveArticle = (article: any) => {
-        //save article into local storage
-        let articles = localStorage.getItem("articles");
-        if (articles === null) {
-            articles = "[]";
-        }
-        // convert the string into an array
-        let articlesArray = JSON.parse(articles);
-    
-        if (!articlesArray.includes(article)) {
-            articlesArray.push(article);
-            localStorage.setItem("articles", JSON.stringify(articlesArray));
-        }
     }
 
     return (
@@ -131,6 +134,24 @@ const NewsSearch = () => {
                                         </div>
                                     </div>
                                 </div>
+                                <div className="column">
+                                    <div className='control'>
+                                        Language:
+                                        <div className='select is-small'>
+                                            <select onChange={(e) => {
+                                                setSearchLanguage(e.target.value)
+                                            }}>
+                                                <option value="">Default</option>
+                                                <option value="&setLang=en">English</option>
+                                                <option value="&setLang=zh">Chinese</option>
+                                                <option value="&setLang=fr">French</option>
+                                                <option value="&setLang=de">German</option>
+                                                <option value="&setLang=it">Italian</option>
+                                                <option value="&setLang=ja">Japanese</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <div className="column">
                                     <div className="control">
@@ -160,6 +181,7 @@ const NewsSearch = () => {
                     <PaginationBar 
                         CurrentOffset={CurrentOffset}
                         setCurrentOffset={setCurrentOffset}
+                        TotalResults={TotalMatches}
                     />
                 }
                 {SearchResults.map((result: any, index: number) => {
@@ -174,6 +196,14 @@ const NewsSearch = () => {
                         </div>
                     )
                 })}
+                {SearchResults.length !== 0
+                    &&
+                    <PaginationBar 
+                        CurrentOffset={CurrentOffset}
+                        setCurrentOffset={setCurrentOffset}
+                        TotalResults={TotalMatches}
+                    />
+                }
             </section>
         </div>
     );
