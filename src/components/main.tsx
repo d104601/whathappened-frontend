@@ -9,7 +9,7 @@ import saveArticle from "../services/saveArticle";
 const Main = () => {
     const [Trending, setTrending] = useState([]);
 
-    const [Weather, setWeather] = useState({} as any);
+    const [Weather, setWeather] = useState();
     const [lat, setLat] = useState(0);
     const [long, setLong] = useState(0);
     const [appid] = useState(process.env.REACT_APP_WEATHERAPI_KEY);
@@ -116,7 +116,7 @@ const Main = () => {
                         <div className="media">
                             <div className="media-left">
                                 <figure className="image is-128x128">
-                                    <img src={"http://openweathermap.org/img/w/" + Weather.current.weather[0].icon + ".png"} alt="not available"/>
+                                    <img src={"http://openweathermap.org/img/w/" + Weather.current.weather[0].icon + "@2x.png"} alt="not available"/>
                                 </figure>
                             </div>
                         </div>
