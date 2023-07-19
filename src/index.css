@@ -16,3 +16,20 @@ code {
   max-width: 500px;
   margin: 60px auto;
 }
+
+.mainBox{
+  max-height: 800px;
+  overflow-y: auto
+}
+
+.scrollable{
+  position: relative;
+}
+
+.scrollable>div{
+  height: 100%;
+  width: 100%;
+  left: 0;
+  top: 0;
+  overflow-y: auto
+}

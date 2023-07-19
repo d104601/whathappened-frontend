@@ -176,10 +176,11 @@ const Main = () => {
                             </select>
                         </div>
                     </div>
+                    <div className="mainBox scrollable">
                     {
                         News.map((article: any, index: number) => {
                             return (
-                                <div key={index}>
+                                <div key={index} className="is-clipped">
                                     <NewsCard
                                         article={article}
                                         index={index}
@@ -190,9 +191,11 @@ const Main = () => {
                             )
                         })
                     }
+                    </div>
                 </div>
                 <div className="column">
                     <h1 className="title">Trending</h1>
+                    <div className="mainBox scrollable">
                     {
                         Trending !== undefined
                         &&
@@ -220,6 +223,7 @@ const Main = () => {
                             );
                         })
                     }
+                    </div>
                 </div>
             </div>
         </div>
