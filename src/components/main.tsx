@@ -4,16 +4,29 @@ import NewsCard from "./newsCard";
 
 import saveArticle from "../services/saveArticle";
 
-
+interface weather {
+    timezone: string,
+    current: {
+        temp: number,
+        weather: [
+            {
+                main: string,
+                description: string,
+                icon: string
+            }
+        ]
+    }
+}
 
 const Main = () => {
     const [Trending, setTrending] = useState([]);
 
-    const [Weather, setWeather] = useState();
+    const [weather, setWeather] = useState({} as weather);
     const [lat, setLat] = useState(0);
     const [long, setLong] = useState(0);
+    const [geoStatus, setGeoStatus] = useState(false);
     const [appid] = useState(process.env.REACT_APP_WEATHERAPI_KEY);
-    
+
     const [News, setNews] = useState([]);
 
     const loadTrending = async () => {
@@ -49,25 +62,23 @@ const Main = () => {
             }).then((response) => {
                 return response;
             });
+        }).catch((error) => {
+            // if error, try again with 2 sec
+            setTimeout(() => {
+                loadTrending();
+            }, 2000);
         });
 
-        setTrending(response.data.value);
+        setTrending(response?.data.value);
     };
 
     const loadWeather = async () => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition((position) => {
-                setLat(position.coords.latitude);
-                setLong(position.coords.longitude);
-            });
-        }
-
+        console.log(lat, long, appid)
         const response = await axios.get("https://api.openweathermap.org/data/2.5/onecall?lat=" + lat + "&lon=" + long + "&appid=" + appid).then((response) => {
             return response;
         });
 
         console.log(response.data);
-
         setWeather(response.data);
     }
 
@@ -77,7 +88,6 @@ const Main = () => {
         if (category !== "") {
             url += "?category=" + category;
         }
-
         const response = await axios.get(url, {
             headers: {
                 'Ocp-Apim-Subscription-Key': process.env.REACT_APP_BING_SUBSCRIPTION_KEY,
@@ -85,17 +95,36 @@ const Main = () => {
         }).then((response) => {
             console.log(response);
             return response;
+        }).catch((error) => {
+            if(error.response.status === 429) {
+                // wait 2 seconds and try again
+                setTimeout(() => {
+                    loadCategoryNews(category);
+                }, 2000);
+            }
         });
 
-        setNews(response.data.value);
+        setNews(response?.data.value);
     }
 
     useEffect(() => {
+        const setLatLong = () => {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                setLat(position.coords.latitude);
+                setLong(position.coords.longitude);
+                setGeoStatus(true);
+            });
+        }
         loadTrending();
-        loadWeather();
         loadCategoryNews("");
+        setLatLong();
     }, []);
 
+    useEffect(() => {
+        if (geoStatus) {
+            loadWeather();
+        }
+    }, [geoStatus]);
 
     return (
         <div>
@@ -113,19 +142,60 @@ const Main = () => {
                 <div className="column">
                     <h1 className="title">Weather</h1>
                     <div className="card m-3">
-                        <div className="media">
-                            <div className="media-left">
-                                <figure className="image is-128x128">
-                                    <img src={"http://openweathermap.org/img/w/" + Weather.current.weather[0].icon + "@2x.png"} alt="not available"/>
-                                </figure>
-                            </div>
-                        </div>
                         <div className="card-content">
+                            <div className="media">
+                                <div className="media-content has-text-centered">
+                                    {
+                                        weather.current !== undefined
+                                        &&
+                                        <>
+                                            <p className="is-size-4">{weather.timezone}</p>
+                                            <img src={"http://openweathermap.org/img/w/" + weather.current.weather[0].icon + ".png"} alt="weather icon"/>
+                                            <p className="is-size-3">{Math.round((weather.current.temp - 273.15) * 9 / 5 + 32)}°F</p>
+                                        </>
+                                    }
+                                </div>
+                            </div>
                         </div>
                     </div>
 
+                    <h1 className="title">News by Category</h1>
+                    <div className='control'>
+                        Category:
+                        <div className='select is-small'>
+                            <select onChange={(e) => {
+                                loadCategoryNews(e.target.value);
+                            }}>
+                                <option value=''>Select Category</option>
+                                <option value='business'>Business</option>
+                                <option value='entertainment'>Entertainment</option>
+                                <option value='health'>Health</option>
+                                <option value='politics'>Politics</option>
+                                <option value='scienceandtechnology'>Science and Technology</option>
+                                <option value='sports'>Sports</option>
+                            </select>
+                        </div>
+                    </div>
+                    {
+                        News.map((article: any, index: number) => {
+                            return (
+                                <div key={index}>
+                                    <NewsCard
+                                        article={article}
+                                        index={index}
+                                        srcPage="search"
+                                        buttonAction={saveArticle}
+                                    />
+                                </div>
+                            )
+                        })
+                    }
+                </div>
+                <div className="column">
                     <h1 className="title">Trending</h1>
                     {
+                        Trending !== undefined
+                        &&
                         Trending.map((trend: any, index: number) => {
                             return (
                                 <div className='card m-3' key={index}>
@@ -147,40 +217,7 @@ const Main = () => {
                                         </div>
                                     </div>
                                 </div>
-                            )
-                        })
-                    }
-                </div>
-                <div className="column">
-                    <h1 className="title">News by Category</h1>
-                    <div className='control'>
-                        Category:
-                        <div className='select is-small'>
-                            <select onChange={(e) => {
-                                loadCategoryNews(e.target.value);
-                                }}>
-                                <option value=''>Select Category</option>
-                                <option value='business'>Business</option>
-                                <option value='entertainment'>Entertainment</option>
-                                <option value='health'>Health</option>
-                                <option value='politics'>Politics</option>
-                                <option value='scienceandtechnology'>Science and Technology</option>
-                                <option value='sports'>Sports</option>
-                            </select>
-                        </div>
-                    </div>
-                    {
-                        News.map((article: any, index: number) => {
-                            return (
-                                <div key={index}>
-                                <NewsCard 
-                                    article={article}
-                                    index={index}
-                                    srcPage="search"
-                                    buttonAction={saveArticle}
-                                />
-                                </div>
-                            )
+                            );
                         })
                     }
                 </div>
