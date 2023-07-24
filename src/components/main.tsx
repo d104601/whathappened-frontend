@@ -55,10 +55,10 @@ const Main = () => {
 
             return mkt;
         }).then((mkt) => {
-            return axios.get("https://api.bing.microsoft.com/v7.0/news/trendingtopics?mkt=" + mkt, {
-                headers: {
-                    'Ocp-Apim-Subscription-Key': process.env.REACT_APP_BING_SUBSCRIPTION_KEY,
-                },
+            return axios.get(process.env.REACT_APP_SERVER_URL + "/api/news/trend", {
+                params: {
+                    mkt: mkt
+                }
             }).then((response) => {
                 return response;
             });
