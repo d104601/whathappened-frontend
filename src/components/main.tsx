@@ -178,6 +178,8 @@ const Main = () => {
                     </div>
                     <div className="mainBox scrollable">
                     {
+                        News !== undefined
+                        &&
                         News.map((article: any, index: number) => {
                             return (
                                 <div key={index} className="is-clipped">
