@@ -3,28 +3,38 @@ import axios from 'axios';
 
 import NewsCard from './newsCard';
 import PaginationBar from './paginationBar';
-
 import saveArticle from '../services/saveArticle';
+
+interface SavedSearchParam {
+    searchTerm: string,
+    searchLocation: string,
+    searchLanguage: string,
+    searchPeriod: string
+}
 
 const NewsSearch = () => {
     const [SearchTerm, setSearchTerm] = useState("");
     const [SearchOption, setSearchOption] = useState(0);
     const [SearchLocation, setSearchLocation] = useState("");
-    const [SearchLanguage, setSearchLanguage] = useState("setlang=en-US");
+    const [SearchLanguage, setSearchLanguage] = useState("en-US");
     const [SearchPeriod, setSearchPeriod] = useState("");
 
-    const [SearchURL, setSearchURL] = useState("");
+    const [SavedSearchOptions, setSavedSearchOptions] = useState<SavedSearchParam>({} as SavedSearchParam);
 
     const [SearchResults, setSearchResults] = useState([]);
     const [CurrentOffset, setCurrentOffset] = useState(0);
     const [TotalMatches, setTotalMatches] = useState(0);
-    const [SubscriptionKey] = useState(process.env.REACT_APP_BING_SUBSCRIPTION_KEY);
 
     useEffect(() => {
+        console.log(SavedSearchOptions)
         const changePage = async() => {
-            const response = await axios.get(SearchURL+"&offset="+CurrentOffset, {
-                headers: {
-                    'Ocp-Apim-Subscription-Key': SubscriptionKey,
+            const response = await axios.get(process.env.REACT_APP_SERVER_URL + "/api/news/search", {
+                params: {
+                    q: encodeURIComponent(SavedSearchOptions.searchTerm),
+                    location: SavedSearchOptions.searchLocation,
+                    language: SavedSearchOptions.searchLanguage,
+                    offset: CurrentOffset,
+                    freshness: SavedSearchOptions.searchPeriod
                 },
             }).then((response) => {
                 return response;
@@ -33,47 +43,59 @@ const NewsSearch = () => {
             setSearchResults(response.data.value);
         }
 
-        if(SearchURL !== "") {
+        if(SavedSearchOptions.searchTerm !== undefined) {
             changePage();
         }
-    }, [CurrentOffset, SearchURL, SubscriptionKey]);
+    }, [CurrentOffset, SavedSearchOptions.searchLanguage, SavedSearchOptions.searchLocation, SavedSearchOptions.searchPeriod, SavedSearchOptions.searchTerm]);
 
     const search = async (e: FormEvent) => {
         e.preventDefault();
         setSearchResults([]);
         setCurrentOffset(0);
 
-        
-        // if user didnt select any language but select location, set language to language of location
-        // So if location is not China or Japan, set language to English
-        if(SearchLanguage === "" && SearchLocation !== "") {
-            if(SearchLocation !== "zh-CN" && SearchLocation !== "ja-JP") {
-                setSearchLanguage("&setLang=en");
-            } else {
-                setSearchLanguage("&setLang="+SearchLocation);
-            }
-        }
+        console.log(SearchLanguage);
 
-        let url = "https://api.bing.microsoft.com/v7.0/news/search?q=" + encodeURIComponent(SearchTerm) + "&sortBy=Relevance&" + SearchLanguage;
-
-        if(SearchOption === 1) {
-            url += "&" + SearchLocation + SearchPeriod;
-        }
-
-        setSearchURL(url);
-
-        console.log(url)
-
-        const response = await axios.get(url+"&offset="+CurrentOffset, {
-            headers: {
-                'Ocp-Apim-Subscription-Key': SubscriptionKey,
+        const response = await axios.get(process.env.REACT_APP_SERVER_URL + "/api/news/search", {
+            params: {
+                q: encodeURIComponent(SearchTerm),
+                location: SearchLocation,
+                language: SearchLanguage,
+                offset: CurrentOffset,
+                freshness: SearchPeriod
             },
         }).then((response) => {
-            console.log(response);
+            let searchOptions: SavedSearchParam = {} as SavedSearchParam;
+
+            searchOptions.searchTerm = SearchTerm;
+
+            // if user didn't select any language but select location, set language to language of location
+            // So if location is not China or Japan, set language to English
+            if(SearchLanguage === "" && SearchLocation !== "") {
+                if(SearchLocation !== "zh-CN" && SearchLocation !== "ja-JP") {
+                    searchOptions.searchLanguage = "en-US";
+                } else {
+                    searchOptions.searchLanguage = SearchLocation;
+                }
+            }
+
+            if(SearchOption === 1) {
+                searchOptions.searchLocation = SearchLocation;
+                searchOptions.searchPeriod = SearchPeriod;
+            }
+            else {
+                searchOptions.searchLocation = "";
+                searchOptions.searchPeriod = "";
+            }
+            setSavedSearchOptions(searchOptions);
             return response;
+        }).catch((error) => {
+            // print all parameters
+            console.log(error.config);
         });
 
-        setSearchResults(response.data.value);
+        console.log(response);
+        setTotalMatches(response?.data.totalEstimatedMatches);
+        setSearchResults(response?.data.value);
     }
 
     return (
@@ -123,13 +145,13 @@ const NewsSearch = () => {
                                                 setSearchLocation(e.target.value)
                                             }}>
                                                 <option value="">All</option>
-                                                <option value="mkt=en-US">United States</option>
-                                                <option value="mkt=en-CA">Canada</option>
-                                                <option value="mkt=en-GB">United Kingdom</option>
-                                                <option value="mkt=en-AU">Australia</option>
-                                                <option value="mkt=zh-CN">China</option>
-                                                <option value="mkt=en-IN">India</option>
-                                                <option value="mkt=ja-JP">Japan</option>
+                                                <option value="en-US">United States</option>
+                                                <option value="en-CA">Canada</option>
+                                                <option value="en-GB">United Kingdom</option>
+                                                <option value="en-AU">Australia</option>
+                                                <option value="zh-CN">China</option>
+                                                <option value="en-IN">India</option>
+                                                <option value="ja-JP">Japan</option>
                                             </select>
                                         </div>
                                     </div>
@@ -142,12 +164,12 @@ const NewsSearch = () => {
                                                 setSearchLanguage(e.target.value)
                                             }}>
                                                 <option value="">Default</option>
-                                                <option value="&setLang=en">English</option>
-                                                <option value="&setLang=zh">Chinese</option>
-                                                <option value="&setLang=fr">French</option>
-                                                <option value="&setLang=de">German</option>
-                                                <option value="&setLang=it">Italian</option>
-                                                <option value="&setLang=ja">Japanese</option>
+                                                <option value="en">English</option>
+                                                <option value="zh">Chinese</option>
+                                                <option value="fr">French</option>
+                                                <option value="de">German</option>
+                                                <option value="it">Italian</option>
+                                                <option value="ja">Japanese</option>
                                             </select>
                                         </div>
                                     </div>
@@ -161,9 +183,9 @@ const NewsSearch = () => {
                                                 setSearchPeriod(e.target.value)
                                             }}>
                                                 <option value="">All</option>
-                                                <option value="&freshness=Day">today</option>
-                                                <option value="&freshness=Week">past week</option>
-                                                <option value="&freshness=Month">past month</option>
+                                                <option value="Day">today</option>
+                                                <option value="Week">past week</option>
+                                                <option value="Month">past month</option>
                                             </select>
                                         </div>
                                     </div>
