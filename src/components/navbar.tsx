@@ -1,6 +1,25 @@
+import { useState, useEffect } from 'react';
+
 const Navbar = () => {
+    const [isSticky, setIsSticky] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const scrollTop = window.pageYOffset;
+            if (scrollTop > 0) {
+                setIsSticky(true);
+            } else {
+                setIsSticky(false);
+            }
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
+
     return (
-        <nav className="navbar is-link">
+        <nav className={`navbar is-link ${isSticky ? 'is-fixed-top' : ''}`}>
             <div className='navbar-menu'>
                 <div className='navbar-start'>
                     <a className='navbar-item' href='/'>What Happened</a>

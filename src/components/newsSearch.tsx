@@ -5,12 +5,6 @@ import NewsCard from './newsCard';
 import PaginationBar from './paginationBar';
 import saveArticle from '../services/saveArticle';
 
-interface SavedSearchParam {
-    searchTerm: string,
-    searchLocation: string,
-    searchLanguage: string,
-    searchPeriod: string
-}
 
 const NewsSearch = () => {
     const [SearchTerm, setSearchTerm] = useState("");
@@ -19,23 +13,20 @@ const NewsSearch = () => {
     const [SearchLanguage, setSearchLanguage] = useState("en-US");
     const [SearchPeriod, setSearchPeriod] = useState("");
 
-    const [SavedSearchOptions, setSavedSearchOptions] = useState<SavedSearchParam>({} as SavedSearchParam);
+    const [SavedSearchOptions, setSavedSearchOptions] = useState({        
+    } as any);
 
     const [SearchResults, setSearchResults] = useState([]);
     const [CurrentOffset, setCurrentOffset] = useState(0);
     const [TotalMatches, setTotalMatches] = useState(0);
 
     useEffect(() => {
-        console.log(SavedSearchOptions)
         const changePage = async() => {
+            let params = SavedSearchOptions;
+            params["offset"] = CurrentOffset;
+            setSavedSearchOptions(params);
             const response = await axios.get(process.env.REACT_APP_SERVER_URL + "/api/news/search", {
-                params: {
-                    q: encodeURIComponent(SavedSearchOptions.searchTerm),
-                    location: SavedSearchOptions.searchLocation,
-                    language: SavedSearchOptions.searchLanguage,
-                    offset: CurrentOffset,
-                    freshness: SavedSearchOptions.searchPeriod
-                },
+                params: params,
             }).then((response) => {
                 return response;
             });
@@ -43,59 +34,49 @@ const NewsSearch = () => {
             setSearchResults(response.data.value);
         }
 
-        if(SavedSearchOptions.searchTerm !== undefined) {
+        if(SavedSearchOptions.q !== undefined) {
             changePage();
         }
-    }, [CurrentOffset, SavedSearchOptions.searchLanguage, SavedSearchOptions.searchLocation, SavedSearchOptions.searchPeriod, SavedSearchOptions.searchTerm]);
+    }, [CurrentOffset]);
 
     const search = async (e: FormEvent) => {
         e.preventDefault();
         setSearchResults([]);
         setCurrentOffset(0);
 
-        console.log(SearchLanguage);
+        let params: any = {
+            q: encodeURIComponent(SearchTerm),
+            offset: CurrentOffset,
+        }
+        if(SearchOption === 1) {
+            if(SearchLanguage !== "") {
+                params["language"] = SearchLanguage;
+            }
+
+            if(SearchLocation !== "") {
+                params["location"] = SearchLocation;
+            }
+
+            if(SearchPeriod !== "") {
+                params["freshness"] = SearchPeriod;
+            }
+        }
+        
+        setSavedSearchOptions(params);
 
         const response = await axios.get(process.env.REACT_APP_SERVER_URL + "/api/news/search", {
-            params: {
-                q: encodeURIComponent(SearchTerm),
-                location: SearchLocation,
-                language: SearchLanguage,
-                offset: CurrentOffset,
-                freshness: SearchPeriod
-            },
+            params: params,
         }).then((response) => {
-            let searchOptions: SavedSearchParam = {} as SavedSearchParam;
-
-            searchOptions.searchTerm = SearchTerm;
-
-            // if user didn't select any language but select location, set language to language of location
-            // So if location is not China or Japan, set language to English
-            if(SearchLanguage === "" && SearchLocation !== "") {
-                if(SearchLocation !== "zh-CN" && SearchLocation !== "ja-JP") {
-                    searchOptions.searchLanguage = "en-US";
-                } else {
-                    searchOptions.searchLanguage = SearchLocation;
-                }
-            }
-
-            if(SearchOption === 1) {
-                searchOptions.searchLocation = SearchLocation;
-                searchOptions.searchPeriod = SearchPeriod;
-            }
-            else {
-                searchOptions.searchLocation = "";
-                searchOptions.searchPeriod = "";
-            }
-            setSavedSearchOptions(searchOptions);
             return response;
         }).catch((error) => {
             // print all parameters
             console.log(error.config);
         });
 
-        console.log(response);
         setTotalMatches(response?.data.totalEstimatedMatches);
         setSearchResults(response?.data.value);
+        console.log(SavedSearchOptions);
+        console.log(TotalMatches);
     }
 
     return (
@@ -197,8 +178,8 @@ const NewsSearch = () => {
             </section>
 
             <section className='container'>
-                {SearchResults.length !== 0
-                    &&
+                {
+                    SearchResults !== undefined && SearchResults.length !== 0 &&
                     // pagination
                     <PaginationBar 
                         CurrentOffset={CurrentOffset}
@@ -206,7 +187,8 @@ const NewsSearch = () => {
                         TotalResults={TotalMatches}
                     />
                 }
-                {SearchResults.map((result: any, index: number) => {
+                {
+                    SearchResults.map((result: any, index: number) => {
                     return (
                         <div key={index}>
                             <NewsCard
@@ -218,7 +200,9 @@ const NewsSearch = () => {
                         </div>
                     )
                 })}
-                {SearchResults.length !== 0
+                {
+                    SearchResults !== undefined &&
+                    SearchResults.length !== 0
                     &&
                     <PaginationBar 
                         CurrentOffset={CurrentOffset}
