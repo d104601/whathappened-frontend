@@ -5,76 +5,53 @@ import NewsCard from "./newsCard";
 import saveArticle from "../services/saveArticle";
 
 interface weather {
-    timezone: string,
-    current: {
+    name: string,
+    main: {
         temp: number,
-        weather: [
-            {
-                main: string,
-                description: string,
-                icon: string
-            }
-        ]
     }
+    weather: [
+        {
+            main: string,
+            description: string,
+            icon: string,
+        }
+    ]
 }
 
 const Main = () => {
+    const [mkt, setMkt] = useState("en-US");
     const [Trending, setTrending] = useState([]);
 
     const [weather, setWeather] = useState({} as weather);
-    const [lat, setLat] = useState(0);
-    const [long, setLong] = useState(0);
-    const [geoStatus, setGeoStatus] = useState(false);
     const [appid] = useState(process.env.REACT_APP_WEATHERAPI_KEY);
 
     const [News, setNews] = useState([]);
 
-    const loadTrending = async () => {
-        // get country using geolocation
-        const response = await axios.get("https://api.ipify.org?format=json").then((response) => {
-            return response.data.ip;
-        }).then((ip) => {
-            return axios.get("https://ipapi.co/" + ip + "/country_code/").then((response) => {
-                return response.data;
-            });
-        }).then((countryCode) => {
-            let mkt = "";
-            if (countryCode === "US") {
-                mkt = "en-US";
-            } else if (countryCode === "GB") {
-                mkt = "en-GB";
-            } else if (countryCode === "CN") {
-                mkt = "zh-CN";
-            } else if (countryCode === "FR") {
-                mkt = "fr-FR";
-            } else if (countryCode === "DE") {
-                mkt = "de-DE";
-            } else if (countryCode === "CA") {
-                mkt = "en-CA";
-            }
-
-            return mkt;
-        }).then((mkt) => {
-            return axios.get(process.env.REACT_APP_SERVER_URL + "/api/news/trend", {
+    const loadTrending = async (mkt: String) => {
+        const response = await axios.get(process.env.REACT_APP_SERVER_URL + "/api/news/trend", {
                 params: {
                     mkt: mkt
                 }
             }).then((response) => {
                 return response;
-            });
-        }).catch((error) => {
+            }).catch(() => {
             // if error, try again with 2 sec
             setTimeout(() => {
-                loadTrending();
+                loadTrending(mkt);
             }, 2000);
         });
 
         setTrending(response?.data.value);
     };
 
-    const loadWeather = async () => {
-        console.log(lat, long, appid)
-        const response = await axios.get("https://api.openweathermap.org/data/2.5/onecall?lat=" + lat + "&lon=" + long + "&appid=" + appid).then((response) => {
+    const loadWeather = async (city: String) => {
+        const response = await axios.get("https://api.openweathermap.org/data/2.5/weather", {
+            params: {
+                q: city,
+                units: "imperial", // or "metric
+                appid: appid,
+            }
+        }).then((response) => {
             return response;
         });
 
@@ -83,48 +60,55 @@ const Main = () => {
     }
 
     const loadCategoryNews = async (category: string) => {
-        let url = "https://api.bing.microsoft.com/v7.0/news";
+        let params: any = {
+            mkt: mkt,
+        };
 
-        if (category !== "") {
-            url += "?category=" + category;
+        if(category !== "") {
+            params["category"] = category;
         }
-        const response = await axios.get(url, {
-            headers: {
-                'Ocp-Apim-Subscription-Key': process.env.REACT_APP_BING_SUBSCRIPTION_KEY,
-            },
+
+        const response = await axios.get(process.env.REACT_APP_SERVER_URL + "/api/news/category", {
+            params: params,
         }).then((response) => {
             console.log(response);
             return response;
-        }).catch((error) => {
-            if(error.response.status === 429) {
-                // wait 2 seconds and try again
-                setTimeout(() => {
-                    loadCategoryNews(category);
-                }, 2000);
-            }
         });
 
         setNews(response?.data.value);
     }
 
     useEffect(() => {
-        const setLatLong = () => {
-            navigator.geolocation.getCurrentPosition(function (position) {
-                setLat(position.coords.latitude);
-                setLong(position.coords.longitude);
-                setGeoStatus(true);
-            });
-        }
-        loadTrending();
-        loadCategoryNews("");
-        setLatLong();
-    }, []);
+        const geoData = async () => {
+            await axios.get("https://api.ipgeolocation.io/ipgeo", {
+                params: {
+                    apiKey: process.env.REACT_APP_GEOLOCATIONAPI_KEY,
+                }
+            }
+            ).then((response) => {
+                return response.data;
+            }).then((data) => {
+                loadWeather(data.city);
 
-    useEffect(() => {
-        if (geoStatus) {
-            loadWeather();
-        }
-    }, [geoStatus]);
+                if(data.country_code2 === "GB") {
+                    setMkt("en-GB");
+                } else if(data.country_code2 === "CN") {
+                    setMkt("zh-CN");
+                } else if(data.country_code2 === "FR") {
+                    setMkt("fr-FR");
+                } else if(data.country_code2 === "DE") {
+                    setMkt("de-DE");
+                } else if(data.country_code2 === "CA") {
+                    setMkt("en-CA");
+                }
+            }).then(() => {
+                loadTrending(mkt);
+                loadCategoryNews("");
+            });
+        };
+
+        geoData();
+    }, []);
 
     return (
         <div>
@@ -146,12 +130,14 @@ const Main = () => {
                             <div className="media">
                                 <div className="media-content has-text-centered">
                                     {
-                                        weather.current !== undefined
+                                        weather.name !== undefined
                                         &&
                                         <>
-                                            <p className="is-size-4">{weather.timezone}</p>
-                                            <img src={"http://openweathermap.org/img/w/" + weather.current.weather[0].icon + ".png"} alt="weather icon"/>
-                                            <p className="is-size-3">{Math.round((weather.current.temp - 273.15) * 9 / 5 + 32)}°F</p>
+                                            <p className="is-size-4">{weather.name}</p>
+                                            <img
+                                                src={"http://openweathermap.org/img/w/" + weather.weather[0].icon + ".png"}
+                                                alt="weather icon"/>
+                                            <p className="is-size-3">{Math.round((weather.main.temp))}°F</p>
                                         </>
                                     }
                                 </div>
@@ -177,54 +163,55 @@ const Main = () => {
                         </div>
                     </div>
                     <div className="mainBox scrollable">
-                    {
-                        News !== undefined
-                        &&
-                        News.map((article: any, index: number) => {
-                            return (
-                                <div key={index} className="is-clipped">
-                                    <NewsCard
-                                        article={article}
-                                        index={index}
-                                        srcPage="search"
-                                        buttonAction={saveArticle}
-                                    />
-                                </div>
-                            )
-                        })
-                    }
+                        {
+                            News !== undefined
+                            &&
+                            News.map((article: any, index: number) => {
+                                return (
+                                    <div key={index} className="is-clipped">
+                                        <NewsCard
+                                            article={article}
+                                            index={index}
+                                            srcPage="search"
+                                            buttonAction={saveArticle}
+                                        />
+                                    </div>
+                                )
+                            })
+                        }
                     </div>
                 </div>
                 <div className="column">
                     <h1 className="title">Trending</h1>
                     <div className="mainBox scrollable">
-                    {
-                        Trending !== undefined
-                        &&
-                        Trending.map((trend: any, index: number) => {
-                            return (
-                                <div className='card m-3' key={index}>
-                                    <div className='card-content'>
-                                        <div className='media'>
-                                            {trend.image !== undefined
-                                                &&
-                                                <div className='media-left'>
-                                                    <figure className='image is-48x48'>
-                                                        <img src={trend.image.url} alt='not available'/>
-                                                    </figure>
+                        {
+                            Trending !== undefined
+                            &&
+                            Trending.map((trend: any, index: number) => {
+                                return (
+                                    <div className='card m-3' key={index}>
+                                        <div className='card-content'>
+                                            <div className='media'>
+                                                {trend.image !== undefined
+                                                    &&
+                                                    <div className='media-left'>
+                                                        <figure className='image is-48x48'>
+                                                            <img src={trend.image.url} alt='not available'/>
+                                                        </figure>
+                                                    </div>
+                                                }
+                                                <div className='media-content'>
+                                                    <p className='title is-4'><a
+                                                        href={trend.webSearchUrl}>{trend.name}</a>
+                                                    </p>
+                                                    <p className='subtitle is-6'>{trend.query.text}</p>
                                                 </div>
-                                            }
-                                            <div className='media-content'>
-                                                <p className='title is-4'><a href={trend.webSearchUrl}>{trend.name}</a>
-                                                </p>
-                                                <p className='subtitle is-6'>{trend.query.text}</p>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            );
-                        })
-                    }
+                                );
+                            })
+                        }
                     </div>
                 </div>
             </div>

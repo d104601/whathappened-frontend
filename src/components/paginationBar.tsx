@@ -5,9 +5,9 @@ interface PaginationBarProps {
 }
 
 const PaginationBar = (props: PaginationBarProps) => {
-    const { CurrentOffset, setCurrentOffset, TotalResults } = props;
+    const {CurrentOffset, setCurrentOffset, TotalResults} = props;
 
-    let maxPage = TotalResults < 100 ? Math.floor(TotalResults / 10): 10;
+    let maxPage = TotalResults < 100 ? Math.floor(TotalResults / 10) : 10;
 
     let pageNumbers = [];
 
@@ -17,7 +17,7 @@ const PaginationBar = (props: PaginationBarProps) => {
 
     return (
         <nav className="pagination is-centered" role="navigation" aria-label="pagination">
-            <button 
+            <button
                 className="pagination-previous"
                 onClick={() => {
                     setCurrentOffset(CurrentOffset - 10);
@@ -31,7 +31,7 @@ const PaginationBar = (props: PaginationBarProps) => {
                 {pageNumbers.map((pageNumber) => {
                     return (
                         <li key={pageNumber}>
-                            <button 
+                            <button
                                 className={"pagination-link" + (CurrentOffset === pageNumber * 10 ? " is-current" : "")}
                                 aria-label={"Goto page " + pageNumber}
                                 onClick={() => {
@@ -45,12 +45,12 @@ const PaginationBar = (props: PaginationBarProps) => {
                 })}
             </ul>
 
-            <button 
+            <button
                 className="pagination-next"
                 onClick={() => {
-                setCurrentOffset(CurrentOffset + 10);
-            }}
-            disabled={CurrentOffset === maxPage * 10}
+                    setCurrentOffset(CurrentOffset + 10);
+                }}
+                disabled={CurrentOffset === maxPage * 10}
             >
                 Next page
             </button>

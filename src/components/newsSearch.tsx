@@ -13,15 +13,14 @@ const NewsSearch = () => {
     const [SearchLanguage, setSearchLanguage] = useState("en-US");
     const [SearchPeriod, setSearchPeriod] = useState("");
 
-    const [SavedSearchOptions, setSavedSearchOptions] = useState({        
-    } as any);
+    const [SavedSearchOptions, setSavedSearchOptions] = useState({} as any);
 
     const [SearchResults, setSearchResults] = useState([]);
     const [CurrentOffset, setCurrentOffset] = useState(0);
     const [TotalMatches, setTotalMatches] = useState(0);
 
     useEffect(() => {
-        const changePage = async() => {
+        const changePage = async () => {
             let params = SavedSearchOptions;
             params["offset"] = CurrentOffset;
             setSavedSearchOptions(params);
@@ -34,7 +33,7 @@ const NewsSearch = () => {
             setSearchResults(response.data.value);
         }
 
-        if(SavedSearchOptions.q !== undefined) {
+        if (SavedSearchOptions.q !== undefined) {
             changePage();
         }
     }, [CurrentOffset]);
@@ -48,20 +47,20 @@ const NewsSearch = () => {
             q: encodeURIComponent(SearchTerm),
             offset: CurrentOffset,
         }
-        if(SearchOption === 1) {
-            if(SearchLanguage !== "") {
+        if (SearchOption === 1) {
+            if (SearchLanguage !== "") {
                 params["language"] = SearchLanguage;
             }
 
-            if(SearchLocation !== "") {
+            if (SearchLocation !== "") {
                 params["location"] = SearchLocation;
             }
 
-            if(SearchPeriod !== "") {
+            if (SearchPeriod !== "") {
                 params["freshness"] = SearchPeriod;
             }
         }
-        
+
         setSavedSearchOptions(params);
 
         const response = await axios.get(process.env.REACT_APP_SERVER_URL + "/api/news/search", {
@@ -83,11 +82,11 @@ const NewsSearch = () => {
         <div>
             <section className='section has-text-centered'>
                 <form onSubmit={search}>
-                    {SearchResults.length === 0 && 
-                    <>
-                        <h1 className='title'>News Search</h1>
-                        <p className='subtitle'>Powered by Bing News Search API</p>
-                    </>
+                    {SearchResults.length === 0 &&
+                        <>
+                            <h1 className='title'>News Search</h1>
+                            <p className='subtitle'>Powered by Bing News Search API</p>
+                        </>
                     }
                     <div className="field has-addons has-addons-centered">
                         <div className="control">
@@ -111,16 +110,18 @@ const NewsSearch = () => {
                     </div>
                     {
                         SearchOption === 0 &&
-                            <button className='button is-small' onClick={()=> setSearchOption(1)}>See more search option</button>
+                        <button className='button is-small' onClick={() => setSearchOption(1)}>See more search
+                            option</button>
                     }
                     {
-                        SearchOption === 1 && 
+                        SearchOption === 1 &&
                         <>
-                            <button className='button is-small' onClick={()=> setSearchOption(0)}>Hide search option</button>
+                            <button className='button is-small' onClick={() => setSearchOption(0)}>Hide search option
+                            </button>
                             <div className="columns mt-1 is-1">
                                 <div className="column">
                                     <div className="control">
-                                        Location: 
+                                        Location:
                                         <div className='select is-small'>
                                             <select onChange={(e) => {
                                                 setSearchLocation(e.target.value)
@@ -179,9 +180,9 @@ const NewsSearch = () => {
 
             <section className='container'>
                 {
-                    SearchResults !== undefined && SearchResults.length !== 0 &&
+                    SearchResults.length !== 0 &&
                     // pagination
-                    <PaginationBar 
+                    <PaginationBar
                         CurrentOffset={CurrentOffset}
                         setCurrentOffset={setCurrentOffset}
                         TotalResults={TotalMatches}
@@ -189,22 +190,21 @@ const NewsSearch = () => {
                 }
                 {
                     SearchResults.map((result: any, index: number) => {
-                    return (
-                        <div key={index}>
-                            <NewsCard
-                                article={result}
-                                srcPage="search"
-                                index={index}
-                                buttonAction={saveArticle}
-                            />
-                        </div>
-                    )
-                })}
+                        return (
+                            <div key={index}>
+                                <NewsCard
+                                    article={result}
+                                    srcPage="search"
+                                    index={index}
+                                    buttonAction={saveArticle}
+                                />
+                            </div>
+                        )
+                    })}
                 {
-                    SearchResults !== undefined &&
                     SearchResults.length !== 0
                     &&
-                    <PaginationBar 
+                    <PaginationBar
                         CurrentOffset={CurrentOffset}
                         setCurrentOffset={setCurrentOffset}
                         TotalResults={TotalMatches}
