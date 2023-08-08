@@ -26,7 +26,6 @@ const Navbar = () => {
                         <a className='navbar-item' href='/'>What Happened</a>
                         <a className='navbar-item' href='/search'>News Search</a>
                         <a className='navbar-item' href='/saved'>Saved Articles</a>
-                        <a className='navbar-item' href='/summarize'>Summarize</a>
                     </div>
                     <div className='navbar-end'>
                         <div className='navbar-item'>

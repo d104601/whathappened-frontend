@@ -45,11 +45,9 @@ const Main = () => {
     };
 
     const loadWeather = async (city: String) => {
-        const response = await axios.get("https://api.openweathermap.org/data/2.5/weather", {
+        const response = await axios.get(process.env.REACT_APP_SERVER_URL + "/api/weather/current", {
             params: {
-                q: city,
-                units: "imperial", // or "metric
-                appid: appid,
+                city: city
             }
         }).then((response) => {
             return response;

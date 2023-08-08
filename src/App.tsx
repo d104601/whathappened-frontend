@@ -18,7 +18,6 @@ function App() {
                         <Route path='/' element={<Main/>}/>
                         <Route path='/search' element={<NewsSearch/>}/>
                         <Route path='/saved' element={<Saved/>}/>
-                        <Route path='/summarize' element={<div>Summarize with GPT(Coming soon)</div>}/>
                         <Route path='/login' element={<Login/>}/>
                         <Route path='/signup' element={<Signup/>}/>
                         <Route path='*' element={<div>Page not found or still working on</div>}/>
