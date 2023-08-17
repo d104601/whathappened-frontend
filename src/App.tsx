@@ -7,6 +7,7 @@ import Login from "./components/login";
 import Signup from "./components/signup";
 import Main from "./components/main";
 import Footer from './components/footer';
+import Auth from "./config/auth";
 
 function App() {
     return (
@@ -17,7 +18,12 @@ function App() {
                     <Routes>
                         <Route path='/' element={<Main/>}/>
                         <Route path='/search' element={<NewsSearch/>}/>
-                        <Route path='/saved' element={<Saved/>}/>
+                        <Route path='/saved' element={
+                            Auth.isLoggedIn() ?
+                                <Saved/>
+                                :
+                                <Login/>
+                        }/>
                         <Route path='/login' element={<Login/>}/>
                         <Route path='/signup' element={<Signup/>}/>
                         <Route path='*' element={<div>Page not found or still working on</div>}/>

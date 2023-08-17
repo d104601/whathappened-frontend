@@ -1,7 +1,6 @@
 import {useState, useEffect} from "react";
 import axios from "axios";
 import NewsCard from "./newsCard";
-
 import saveArticle from "../services/saveArticle";
 
 interface weather {
@@ -21,10 +20,7 @@ interface weather {
 const Main = () => {
     const [mkt, setMkt] = useState("en-US");
     const [Trending, setTrending] = useState([]);
-
     const [weather, setWeather] = useState({} as weather);
-    const [appid] = useState(process.env.REACT_APP_WEATHERAPI_KEY);
-
     const [News, setNews] = useState([]);
 
     const loadTrending = async (mkt: String) => {
@@ -45,7 +41,7 @@ const Main = () => {
     };
 
     const loadWeather = async (city: String) => {
-        const response = await axios.get(process.env.REACT_APP_SERVER_URL + "/api/weather/current", {
+        const response = await axios.get(process.env.REACT_APP_SERVER_URL + "/api/weather", {
             params: {
                 city: city
             }

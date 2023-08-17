@@ -1,7 +1,13 @@
 import {useState, useEffect} from 'react';
+import Auth from "../config/auth";
 
 const Navbar = () => {
     const [isSticky, setIsSticky] = useState(false);
+
+    const logout = () => {
+        Auth.logout();
+        window.location.href = "/";
+    }
 
     useEffect(() => {
         const handleScroll = () => {
@@ -30,12 +36,19 @@ const Navbar = () => {
                     <div className='navbar-end'>
                         <div className='navbar-item'>
                             <div className='buttons'>
-                                <a className='button is-primary' href='/signup'>
-                                    <strong>Sign up</strong>
-                                </a>
-                                <a className='button is-light' href='/login'>
-                                    Sign in
-                                </a>
+                                {
+                                    Auth.isLoggedIn() ?
+                                        <button className={"button is-light"} onClick={logout}>Sign out</button>
+                                        :
+                                        <>
+                                            <a className='button is-primary' href='/signup'>
+                                                <strong>Sign up</strong>
+                                            </a>
+                                            <a className='button is-light' href='/login'>
+                                                Sign in
+                                            </a>
+                                        </>
+                                }
                             </div>
                         </div>
                     </div>

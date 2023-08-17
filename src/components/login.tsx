@@ -1,10 +1,18 @@
+import { useState } from 'react';
 const Login = () => {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+
+    const submit = (e: any) => {
+
+    }
+
     return (
         <div>
-            <section className='section is-medium'>
+            <section className='section'>
                 <div className='box '>
                     <h1 className='title has-text-centered'>Sign In</h1>
-                    <form>
+                    <form onSubmit={submit}>
                         <div className='field'>
                             <label className='label'>Username or Email</label>
                             <div className='control'>
@@ -12,6 +20,8 @@ const Login = () => {
                                     className='input'
                                     type='text'
                                     placeholder='Username or Email'
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
                                 />
                             </div>
                         </div>
@@ -22,6 +32,8 @@ const Login = () => {
                                     className='input'
                                     type='password'
                                     placeholder='Password'
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
                                 />
                             </div>
                         </div>
