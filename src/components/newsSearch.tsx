@@ -3,8 +3,7 @@ import axios from 'axios';
 
 import NewsCard from './newsCard';
 import PaginationBar from './paginationBar';
-import saveArticle from '../services/saveArticle';
-
+import {NewsService} from "../services/newsService";
 
 const NewsSearch = () => {
     const [SearchTerm, setSearchTerm] = useState("");
@@ -196,7 +195,7 @@ const NewsSearch = () => {
                                     article={result}
                                     srcPage="search"
                                     index={index}
-                                    buttonAction={saveArticle}
+                                    buttonAction={NewsService.saveArticle}
                                 />
                             </div>
                         )

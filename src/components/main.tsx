@@ -1,7 +1,7 @@
 import {useState, useEffect} from "react";
-import axios from "axios";
 import NewsCard from "./newsCard";
-import saveArticle from "../services/saveArticle";
+import {NewsService} from "../services/newsService";
+import {OtherService} from "../services/otherService";
 
 interface weather {
     name: string,
@@ -24,84 +24,30 @@ const Main = () => {
     const [News, setNews] = useState([]);
 
     const loadTrending = async (mkt: String) => {
-        const response = await axios.get(process.env.REACT_APP_SERVER_URL + "/api/news/trend", {
-                params: {
-                    mkt: mkt
-                }
-            }).then((response) => {
-                return response;
-            }).catch(() => {
-            // if error, try again with 2 sec
-            setTimeout(() => {
-                loadTrending(mkt);
-            }, 2000);
-        });
-
+        const response = await NewsService.loadTrending(mkt);
         setTrending(response?.data.value);
     };
 
     const loadWeather = async (city: String) => {
-        const response = await axios.get(process.env.REACT_APP_SERVER_URL + "/api/weather", {
-            params: {
-                city: city
-            }
-        }).then((response) => {
-            return response;
-        });
-
-        console.log(response.data);
+        const response = await OtherService.loadWeatherData(city);
         setWeather(response.data);
     }
 
     const loadCategoryNews = async (category: string) => {
-        let params: any = {
-            mkt: mkt,
-        };
-
-        if(category !== "") {
-            params["category"] = category;
-        }
-
-        const response = await axios.get(process.env.REACT_APP_SERVER_URL + "/api/news/category", {
-            params: params,
-        }).then((response) => {
-            console.log(response);
-            return response;
-        });
-
+        const response = await NewsService.loadCategoryNews(mkt, category);
         setNews(response?.data.value);
     }
 
     useEffect(() => {
-        const geoData = async () => {
-            await axios.get("https://api.ipgeolocation.io/ipgeo", {
-                params: {
-                    apiKey: process.env.REACT_APP_GEOLOCATIONAPI_KEY,
-                }
-            }
-            ).then((response) => {
-                return response.data;
-            }).then((data) => {
-                loadWeather(data.city);
-
-                if(data.country_code2 === "GB") {
-                    setMkt("en-GB");
-                } else if(data.country_code2 === "CN") {
-                    setMkt("zh-CN");
-                } else if(data.country_code2 === "FR") {
-                    setMkt("fr-FR");
-                } else if(data.country_code2 === "DE") {
-                    setMkt("de-DE");
-                } else if(data.country_code2 === "CA") {
-                    setMkt("en-CA");
-                }
-            }).then(() => {
-                loadTrending(mkt);
-                loadCategoryNews("");
+        OtherService.getLocationData()
+            .then((response) => {
+                loadWeather(response.city).then(r => console.log(r));
+                setMkt(OtherService.getMktCode(response.country_code2));
+            })
+            .then(() => {
+                loadTrending(mkt).then(r => console.log(r));
+                loadCategoryNews("").then(r => console.log(r));
             });
-        };
-
-        geoData();
     }, []);
 
     return (
@@ -167,7 +113,7 @@ const Main = () => {
                                             article={article}
                                             index={index}
                                             srcPage="search"
-                                            buttonAction={saveArticle}
+                                            buttonAction={NewsService.saveArticle}
                                         />
                                     </div>
                                 )

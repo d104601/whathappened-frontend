@@ -1,7 +1,7 @@
 import 'bulma/css/bulma.css'
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import NewsSearch from "./components/newsSearch";
-import Saved from "./services/saved";
+import Saved from "./components/saved";
 import Navbar from "./components/navbar";
 import Login from "./components/login";
 import Signup from "./components/signup";

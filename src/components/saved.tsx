@@ -1,6 +1,6 @@
 import {useState, useEffect} from "react";
 import 'bulma/css/bulma.css'
-import NewsCard from "../components/newsCard";
+import NewsCard from "./newsCard";
 
 function getSavedArticle() {
     let articles = localStorage.getItem("articles");
