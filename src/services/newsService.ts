@@ -1,5 +1,5 @@
 import axios from "axios";
-import Auth from "../config/auth";
+import {auth} from "../config/auth";
 
 class newsService {
     async loadTrending(mkt: String) {
@@ -32,7 +32,7 @@ class newsService {
     }
 
     saveArticle(article: any) {
-        if(Auth.isLoggedIn()) {
+        if(auth.isLoggedIn()) {
 
         }
         else {

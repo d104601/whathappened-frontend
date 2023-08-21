@@ -20,16 +20,16 @@ class Auth {
     }
 
     getToken(): any {
-        return localStorage.getItem('token');
+        return localStorage.getItem('token-whathappened');
     }
 
     login(token: string) {
-        localStorage.setItem('token', token);
+        localStorage.setItem('token-whathappened', token);
     }
 
     logout() {
-        localStorage.removeItem('token');
+        localStorage.removeItem('token-whathappened');
     }
 }
 
-export default new Auth();
+export const auth = new Auth();

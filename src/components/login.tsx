@@ -1,10 +1,22 @@
-import { useState } from 'react';
+import {useState} from 'react';
+import {UserService} from "../services/userService";
+import {auth} from "../config/auth";
+
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
 
-    const submit = (e: any) => {
-
+    const submit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setError('');
+        UserService.login(username, password)
+        .then((response) => {
+            auth.login(response.token);
+            window.location.href = "/";
+        }).catch((error) => {
+            setError(error.message);
+        });
     }
 
     return (
@@ -13,6 +25,15 @@ const Login = () => {
                 <div className='box '>
                     <h1 className='title has-text-centered'>Sign In</h1>
                     <form onSubmit={submit}>
+                        {
+                            error !== ''
+                            &&
+                            <div className='field'>
+                                <div className='notification is-danger'>
+                                    {error}
+                                </div>
+                            </div>
+                        }
                         <div className='field'>
                             <label className='label'>Username or Email</label>
                             <div className='control'>
@@ -20,6 +41,7 @@ const Login = () => {
                                     className='input'
                                     type='text'
                                     placeholder='Username or Email'
+                                    required={true}
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
                                 />
@@ -32,6 +54,7 @@ const Login = () => {
                                     className='input'
                                     type='password'
                                     placeholder='Password'
+                                    required={true}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                 />

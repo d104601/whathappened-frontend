@@ -1,11 +1,11 @@
 import {useState, useEffect} from 'react';
-import Auth from "../config/auth";
+import {auth} from "../config/auth";
 
 const Navbar = () => {
     const [isSticky, setIsSticky] = useState(false);
-
+    const [username, setUsername] = useState('' as any);
     const logout = () => {
-        Auth.logout();
+        auth.logout();
         window.location.href = "/";
     }
 
@@ -19,6 +19,10 @@ const Navbar = () => {
             }
         };
         window.addEventListener('scroll', handleScroll);
+        if(auth.isLoggedIn()) {
+            // @ts-ignore
+            setUsername(Auth.getProfile().sub);
+        }
         return () => {
             window.removeEventListener('scroll', handleScroll);
         };
@@ -34,11 +38,17 @@ const Navbar = () => {
                         <a className='navbar-item' href='/saved'>Saved Articles</a>
                     </div>
                     <div className='navbar-end'>
+                        {
+                            auth.isLoggedIn() &&
+                            <div className='navbar-item'>
+                                Hello {username}!
+                            </div>
+                        }
                         <div className='navbar-item'>
                             <div className='buttons'>
                                 {
-                                    Auth.isLoggedIn() ?
-                                        <button className={"button is-light"} onClick={logout}>Sign out</button>
+                                    auth.isLoggedIn() ?
+                                            <button className={"button is-light"} onClick={logout}>Sign out</button>
                                         :
                                         <>
                                             <a className='button is-primary' href='/signup'>
