@@ -132,7 +132,7 @@ const Main = () => {
                                     <div className='card m-3' key={index}>
                                         <div className='card-content'>
                                             <div className='media'>
-                                                {trend.image !== undefined
+                                                {trend.image !== null
                                                     &&
                                                     <div className='media-left'>
                                                         <figure className='image is-48x48'>

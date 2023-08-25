@@ -13,9 +13,10 @@ const Login = () => {
         UserService.login(username, password)
         .then((response) => {
             auth.login(response.token);
-            window.location.href = "/";
+            window.location.href = "/";        
         }).catch((error) => {
-            setError(error.message);
+            console.log(error);
+            setError(error.response.data);
         });
     }
 

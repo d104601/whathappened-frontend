@@ -12,7 +12,7 @@ const Navbar = () => {
     useEffect(() => {
         const handleScroll = () => {
             const scrollTop = window.pageYOffset;
-            if (scrollTop > 0) {
+            if (scrollTop > 80) {
                 setIsSticky(true);
             } else {
                 setIsSticky(false);
@@ -21,7 +21,7 @@ const Navbar = () => {
         window.addEventListener('scroll', handleScroll);
         if(auth.isLoggedIn()) {
             // @ts-ignore
-            setUsername(Auth.getProfile().sub);
+            setUsername(auth.getProfile().sub);
         }
         return () => {
             window.removeEventListener('scroll', handleScroll);

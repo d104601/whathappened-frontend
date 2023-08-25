@@ -47,7 +47,7 @@ const NewsCard = (props: propData) => {
                 <div className='media'>
                     <div className='media-left'>
                         {
-                            article.image !== undefined
+                            (article.image !== null && article.image !== undefined)
                             &&
                             <figure className='image is-128x128'>
                                 <img src={article.image.thumbnail.contentUrl} alt={article.name}/>
