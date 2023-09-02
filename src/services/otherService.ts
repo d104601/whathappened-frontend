@@ -5,6 +5,9 @@ class otherService {
         return axios.get("https://api.ipgeolocation.io/ipgeo", {
             params: {
                 apiKey: process.env.REACT_APP_GEOLOCATIONAPI_KEY,
+            },
+            headers: {
+                'Access-Control-Allow-Origin': '*'
             }
         }).then((response) => {
             return response.data;
@@ -31,6 +34,9 @@ class otherService {
         return axios.get(process.env.REACT_APP_SERVER_URL + "/api/weather", {
             params: {
                 city: city
+            },
+            headers: {
+                'Access-Control-Allow-Origin': '*'
             }
         });
     }

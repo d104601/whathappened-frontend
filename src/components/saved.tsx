@@ -40,7 +40,7 @@ const Saved = () => {
                 <div className='hero-body'>
                     <div className="hero-title">
                         <h1 className='title has-text-centered'>Saved Articles</h1>
-                        {SavedArticles.length === 0 && <p className='subtitle has-text-centered'>{error}</p>}
+                        {(SavedArticles.length === 0 && SavedArticles !== undefined) ? <p className='subtitle has-text-centered'>{error}</p>: null}
                         {SavedArticles.map((result: any, index: number) => {
                             return (
                                 <div key={index}>

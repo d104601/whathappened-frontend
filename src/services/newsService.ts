@@ -5,10 +5,15 @@ import {auth} from "../config/auth";
 class newsService {
     async loadTrending(mkt: String) {
         try {
+            const headers = {
+                'Access-Control-Allow-Origin': '*'
+            }
+
             return await axios.get(process.env.REACT_APP_SERVER_URL + "/api/news/trend", {
                 params: {
                     mkt: mkt
-                }
+                },
+                headers: headers
             });
         } catch {
             // if error, try again with 2 sec
@@ -29,13 +34,19 @@ class newsService {
 
         return axios.get(process.env.REACT_APP_SERVER_URL + "/api/news/category", {
             params: params,
-        });
+            headers: {
+                'Access-Control-Allow-Origin': '*'
+            }
+            },
+        );
     }
 
     saveArticle(article: any) {
         if(auth.isLoggedIn()) {
             const config = {
                 headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
                     'Authorization': "Bearer " + auth.getToken()
                 }
             };
@@ -43,6 +54,18 @@ class newsService {
             return axios.put(process.env.REACT_APP_SERVER_URL + "/api/news/save", article, config)
             .then((res) => {
                 console.log(res);
+                // if article is saved successfully, return "success"
+                if(res.data === "Article saved") {
+                    return "Article saved";
+                }
+                // if article is already saved, return "already saved"
+                else if(res.data === "already saved") {
+                    return "Article already saved";
+                }
+                // if article is not saved, return "error"
+                else {
+                    return "error";
+                }
             })
             .catch((err) => {
                 console.log(err);
@@ -58,11 +81,17 @@ class newsService {
         try {
             const config = {
                 headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
                     'Authorization': "Bearer " + auth.getToken()
                 }
             };
             return await axios.get(process.env.REACT_APP_SERVER_URL + "/api/news/saved", config).then((res) => {
                 console.log(res);
+                // if 401, return error
+                if(res.status !== 200) {
+                    return "error";
+                }
                 return res.data === "" ? [] : res.data;
             });   
         } catch {
@@ -74,6 +103,8 @@ class newsService {
         try {
             const config = {
                 headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
                     'Authorization': "Bearer " + auth.getToken()
                 }
             };
