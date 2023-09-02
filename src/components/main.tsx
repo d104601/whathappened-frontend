@@ -43,11 +43,15 @@ const Main = () => {
             .then((response) => {
                 loadWeather(response.city).then(r => console.log(r));
                 setMkt(OtherService.getMktCode(response.country_code2));
+
             })
             .then(() => {
                 loadTrending(mkt).then(r => console.log(r));
-                loadCategoryNews("").then(r => console.log(r));
-            });
+                // wait 2 seconds before go to next step
+                setTimeout(() => {
+                    loadCategoryNews("business").then(r => console.log(r));
+                }, 2000);
+            })
     }, []);
 
     return (

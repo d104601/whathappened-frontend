@@ -1,3 +1,4 @@
+import {useState} from "react";
 interface propData {
     article: {
         name: string;
@@ -36,9 +37,32 @@ function closeModal(index: number) {
 
 const NewsCard = (props: propData) => {
     const {article, srcPage, index, buttonAction} = props;
+    const [buttonText, setButtonText] = useState("Save this article");
+    const [buttonClass, setButtonClass] = useState("button is-link" as any);
+    const [disabled, setDisabled] = useState(false);
 
-    const actionWithArticle = () => {
-        buttonAction(article);
+    const actionWithArticle = async () => {
+        if(buttonText === "Save this article") {
+            setButtonClass("button is-loading");
+        }
+        const response = await buttonAction(article);
+        console.log(response);
+        // @ts-ignore
+        if(response === "success") {
+            setButtonText("Saved");
+            setButtonClass("button is-success");
+        }
+        // @ts-ignore
+        else if(response === "already saved") {
+            setButtonText("Already saved");
+            setButtonClass("button is-warning disabled");
+        }
+        // @ts-ignore
+        else if(response === "error") {
+            setButtonText("Error");
+            setButtonClass("button is-danger disabled");
+        }
+        setDisabled(true);
     }
 
     return (
@@ -63,8 +87,12 @@ const NewsCard = (props: propData) => {
                     <div className='media-right'>
                         {srcPage === "search"
                             &&
-                            <button className='button is-dark' onClick={actionWithArticle}>
-                                Save this article
+                            <button
+                                className={buttonClass}
+                                onClick={actionWithArticle}
+                                disabled={disabled}
+                            >
+                                {buttonText}
                             </button>}
                         {srcPage === "saved"
                             &&

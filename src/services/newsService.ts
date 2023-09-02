@@ -15,11 +15,9 @@ class newsService {
                 },
                 headers: headers
             });
-        } catch {
-            // if error, try again with 2 sec
-            setTimeout(() => {
-                this.loadTrending(mkt);
-            }, 2000);
+        } catch(e) {
+            console.log("Error loading trending news");
+            console.log(e);
         }
     }
 
@@ -34,9 +32,6 @@ class newsService {
 
         return axios.get(process.env.REACT_APP_SERVER_URL + "/api/news/category", {
             params: params,
-            headers: {
-                'Access-Control-Allow-Origin': '*'
-            }
             },
         );
     }
@@ -46,21 +41,20 @@ class newsService {
             const config = {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
                     'Authorization': "Bearer " + auth.getToken()
                 }
             };
-            
+
             return axios.put(process.env.REACT_APP_SERVER_URL + "/api/news/save", article, config)
             .then((res) => {
                 console.log(res);
                 // if article is saved successfully, return "success"
-                if(res.data === "Article saved") {
-                    return "Article saved";
+                if(res.data === "success") {
+                    return "success";
                 }
                 // if article is already saved, return "already saved"
                 else if(res.data === "already saved") {
-                    return "Article already saved";
+                    return "already saved";
                 }
                 // if article is not saved, return "error"
                 else {
@@ -82,7 +76,6 @@ class newsService {
             const config = {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
                     'Authorization': "Bearer " + auth.getToken()
                 }
             };
@@ -104,7 +97,6 @@ class newsService {
             const config = {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
                     'Authorization': "Bearer " + auth.getToken()
                 }
             };
